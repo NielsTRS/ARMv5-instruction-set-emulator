@@ -1,51 +1,112 @@
 /*
-Armator - simulateur de jeu d'instruction ARMv5T à but pédagogique
+Armator - simulateur de jeu d'instruction ARMv5T   but pÃ©dagogique
 Copyright (C) 2011 Guillaume Huard
 Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
-termes de la Licence Publique Générale GNU publiée par la Free Software
-Foundation (version 2 ou bien toute autre version ultérieure choisie par vous).
+termes de la Licence Publique GÃ©nÃ©rale GNU publiÃ©e par la Free Software
+Foundation (version 2 ou bien toute autre version ultÃ©rieure choisie par vous).
 
-Ce programme est distribué car potentiellement utile, mais SANS AUCUNE
+Ce programme est distribuÃ©  car potentiellement utile, mais SANS AUCUNE
 GARANTIE, ni explicite ni implicite, y compris les garanties de
-commercialisation ou d'adaptation dans un but spécifique. Reportez-vous à la
-Licence Publique Générale GNU pour plus de détails.
+commercialisation ou d'adaptation dans un but spÃ©cifique. Reportez-vous Ã  la
+Licence Publique GÃ©nÃ©rale GNU pour plus de dÃ©tails.
 
-Vous devez avoir reçu une copie de la Licence Publique Générale GNU en même
-temps que ce programme ; si ce n'est pas le cas, écrivez à la Free Software
+Vous devez avoir re u une copie de la Licence Publique GÃ©nÃ©rale GNU en mÃªme
+temps que ce programme ; si ce n'est pas le cas, Ã©crivez Ã  la Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
-États-Unis.
+Ã©tats-Unis.
 
 Contact: Guillaume.Huard@imag.fr
-	 Bâtiment IMAG
+	 BÃ¢timent IMAG
 	 700 avenue centrale, domaine universitaire
-	 38401 Saint Martin d'Hères
+	 38401 Saint Martin d'HÃ¨res
 */
 #include "registers.h"
 #include "arm_constants.h"
 #include <stdlib.h>
 
 struct registers_data {
-    /* À compléter... */
+    /* Ã  complÃ©ter... */
+    uint32_t *reg; // r0-r12:utilisation libre, r13:sp, r14:lr, r15:pc
+    uint32_t cpsr;  // CPSR
+    uint32_t spsr;  // SPSR
 };
 
+// DÃ©finition des modes ARMv5
+#define MODE_USER 0x10
+#define MODE_FIQ  0x11 // Fast Interrupt Request
+#define MODE_IRQ  0x12 // Interrupt Request
+#define MODE_SVC  0x13 // Supervisor
+#define MODE_ABT  0x17 // Abort
+#define MODE_UND  0x1B // Undefined
+
 registers registers_create() {
-    registers r = NULL;
-    /* À compléter... */
+    /* registers r = NULL; */
+    /* Ã  complÃ©ter... */
+
+    registers r = malloc(sizeof(struct registers_data));
+    if (r == NULL) {
+        return NULL;
+    }
+    r->reg = malloc(sizeof(uint32_t)*16);
+    if (r->reg == NULL) {
+        free(r);
+        return NULL;
+    }
+
+    r->reg[0] = 0;
+    r->reg[1] = 0;
+    r->reg[2] = 0;
+    r->reg[3] = 0;
+    r->reg[4] = 0;
+    r->reg[5] = 0;
+    r->reg[6] = 0;
+    r->reg[7] = 0;
+    r->reg[8] = 0;
+    r->reg[9] = 0;
+    r->reg[10] = 0;
+    r->reg[11] = 0;
+    r->reg[12] = 0;
+    r->reg[13] = 0; // sp
+    r->reg[14] = 0; // lr
+    r->reg[15] = 0; // pc
+    r->cpsr = 0;
+    r->spsr = 0;
+
     return r;
 }
 
 void registers_destroy(registers r) {
-    /* À compléter... */
+    /*   complÃ©ter... */
+    free(r->reg);
+    free(r);
 }
 
 uint8_t registers_get_mode(registers r) {
-    /* À compléter... */
-    return SVC;
+    // Masque pour extraire le champ du mode dans CPSR
+    uint32_t modeMask = 0x1F; // 5 bits de poids faible de CPSR pour le mode
+
+    // Extraire le champ du mode actuel
+    uint32_t currentMode = r->cpsr & modeMask;
+
+    // Convertir le mode en uint8_t si nÃ©cessaire
+    uint8_t mode = (uint8_t)currentMode;
+
+    return mode;
+    /* return SVC; */
 }
 
-static int registers_mode_has_spsr(registers r, uint8_t mode) {
-    /* À compléter... */
-    return 1;
+static int registers_mode_has_spsr(registers r, uint8_t mode) { //POURQUOI METTRE r ??
+    /*   complÃ©ter... */
+    switch (mode) {
+        case MODE_FIQ:
+        case MODE_IRQ:
+        case MODE_SVC:
+        case MODE_ABT:
+        case MODE_UND:
+            return 1; // True, le mode a un SPSR associÃ©
+        default:
+            return 0; // False, le mode n'a pas de SPSR associÃ© ( mode=MODE_USER )
+    }
 }
 
 int registers_current_mode_has_spsr(registers r) {
@@ -53,36 +114,84 @@ int registers_current_mode_has_spsr(registers r) {
 }
 
 int registers_in_a_privileged_mode(registers r) {
-    /* À compléter... */
-    return 0;
+    // Masque pour extraire le champ du mode dans CPSR (5 bits de poids faible)
+    uint32_t modeMask = 0x1F;
+
+    // Extraire le champ du mode actuel
+    uint32_t currentMode = r->cpsr & modeMask;
+
+    // VÃ©rifier si le mode est un mode privilÃ©giÃ© (SVC ou supÃ©rieur)
+    return (currentMode >= MODE_SVC);
 }
 
-uint32_t registers_read(registers r, uint8_t reg, uint8_t mode) {
-    uint32_t value = 0;
-    /* À compléter... */
-    return value;
+uint32_t registers_read(registers r, uint8_t mode, uint8_t reg) {
+    switch (mode) {
+        case MODE_USER:
+        case MODE_FIQ:     
+        case MODE_IRQ:
+        case MODE_SVC:
+        case MODE_ABT:
+        case MODE_UND:
+            return r->reg[reg];
+        default:
+            // Mode inconnu
+            return 0;
+    }
 }
 
 uint32_t registers_read_cpsr(registers r) {
-    uint32_t value = 0;
-    /* À compléter... */
-    return value;
+    /* uint32_t value = 0; */
+    /*   complÃ©ter... */
+    return r->cpsr;
+    /* return value; */
 }
 
 uint32_t registers_read_spsr(registers r, uint8_t mode) {
-    uint32_t value = 0;
-    /* À compléter... */
-    return value;
+    switch (mode) {
+        case MODE_FIQ:
+        case MODE_IRQ:
+        case MODE_SVC:
+        case MODE_ABT:
+        case MODE_UND:
+            return r->spsr;
+        default:
+            // Mode inconnu
+            return 0;
+    }
 }
 
 void registers_write(registers r, uint8_t reg, uint8_t mode, uint32_t value) {
-    /* À compléter... */
+    switch (mode) {
+        case MODE_USER:
+        case MODE_FIQ:
+        case MODE_IRQ:
+        case MODE_SVC:
+        case MODE_ABT:
+        case MODE_UND:
+            r->reg[reg] = value;
+            break;
+        default:
+            // Mode inconnu
+            break;
+    }
 }
 
 void registers_write_cpsr(registers r, uint32_t value) {
-    /* À compléter... */
+    /*   complÃ©ter... */
+    r->cpsr = value;
 }
 
 void registers_write_spsr(registers r, uint8_t mode, uint32_t value) {
-    /* À compléter... */
+    switch (mode) {
+        case MODE_FIQ:
+        case MODE_IRQ:
+        case MODE_SVC:
+        case MODE_ABT:
+        case MODE_UND:
+            r->spsr = value;
+            break;
+        default:
+            // Mode inconnu
+            break;
+    }
 }
