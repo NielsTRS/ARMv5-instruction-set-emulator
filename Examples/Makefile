@@ -193,9 +193,9 @@ AWK = mawk
 CC = $(GCC_CROSS)
 CCAS = $(GCC_CROSS)
 CCASDEPMODE = depmode=gcc3
-CCASFLAGS = -Wall -Werror -g
+CCASFLAGS = -Werror -Wall -g
 CCDEPMODE = depmode=gcc3
-CFLAGS = -Wall -Werror -g
+CFLAGS = -Werror -Wall -g
 CPPFLAGS = 
 CSCOPE = cscope
 CTAGS = ctags

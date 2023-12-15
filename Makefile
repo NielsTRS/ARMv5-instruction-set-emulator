@@ -285,9 +285,9 @@ AWK = mawk
 CC = gcc
 CCAS = gcc
 CCASDEPMODE = depmode=gcc3
-CCASFLAGS = -Wall -Werror -g
+CCASFLAGS = -Werror -Wall -g
 CCDEPMODE = depmode=gcc3
-CFLAGS = -Wall -Werror -g
+CFLAGS = -Werror -Wall -g
 CPPFLAGS = 
 CSCOPE = cscope
 CTAGS = ctags
