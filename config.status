@@ -430,11 +430,11 @@ Copyright (C) 2021 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/mnt/c/Users/heuls/OneDrive/Bureau/projet_prog5'
+ac_pwd='/home/niels/Documents/projects/UGA/L3/prog5/projet_prog5'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 MKDIR_P='/usr/bin/mkdir -p'
-AWK='gawk'
+AWK='mawk'
 test -n "$AWK" || AWK=awk
 # The default lists apply if the user does not specify any file.
 ac_need_defaults=:
@@ -625,9 +625,9 @@ S["build_cpu"]="x86_64"
 S["build"]="x86_64-pc-linux-gnu"
 S["EGREP"]="/usr/bin/grep -E"
 S["GREP"]="/usr/bin/grep"
-S["LEXLIB"]="-ll "
-S["LEX_OUTPUT_ROOT"]="lex.yy"
-S["LEX"]="flex"
+S["LEXLIB"]=""
+S["LEX_OUTPUT_ROOT"]=""
+S["LEX"]="${SHELL} '/home/niels/Documents/projects/UGA/L3/prog5/projet_prog5/build-aux/missing' flex"
 S["am__fastdepCCAS_FALSE"]="#"
 S["am__fastdepCCAS_TRUE"]=""
 S["CCASDEPMODE"]="depmode=gcc3"
@@ -661,17 +661,17 @@ S["am__tar"]="$${TAR-tar} chof - \"$$tardir\""
 S["AMTAR"]="$${TAR-tar}"
 S["am__leading_dot"]="."
 S["SET_MAKE"]=""
-S["AWK"]="gawk"
+S["AWK"]="mawk"
 S["mkdir_p"]="$(MKDIR_P)"
 S["MKDIR_P"]="/usr/bin/mkdir -p"
 S["INSTALL_STRIP_PROGRAM"]="$(install_sh) -c -s"
 S["STRIP"]=""
-S["install_sh"]="${SHELL} /mnt/c/Users/heuls/OneDrive/Bureau/projet_prog5/build-aux/install-sh"
-S["MAKEINFO"]="${SHELL} '/mnt/c/Users/heuls/OneDrive/Bureau/projet_prog5/build-aux/missing' makeinfo"
-S["AUTOHEADER"]="${SHELL} '/mnt/c/Users/heuls/OneDrive/Bureau/projet_prog5/build-aux/missing' autoheader"
-S["AUTOMAKE"]="${SHELL} '/mnt/c/Users/heuls/OneDrive/Bureau/projet_prog5/build-aux/missing' automake-1.16"
-S["AUTOCONF"]="${SHELL} '/mnt/c/Users/heuls/OneDrive/Bureau/projet_prog5/build-aux/missing' autoconf"
-S["ACLOCAL"]="${SHELL} '/mnt/c/Users/heuls/OneDrive/Bureau/projet_prog5/build-aux/missing' aclocal-1.16"
+S["install_sh"]="${SHELL} /home/niels/Documents/projects/UGA/L3/prog5/projet_prog5/build-aux/install-sh"
+S["MAKEINFO"]="${SHELL} '/home/niels/Documents/projects/UGA/L3/prog5/projet_prog5/build-aux/missing' makeinfo"
+S["AUTOHEADER"]="${SHELL} '/home/niels/Documents/projects/UGA/L3/prog5/projet_prog5/build-aux/missing' autoheader"
+S["AUTOMAKE"]="${SHELL} '/home/niels/Documents/projects/UGA/L3/prog5/projet_prog5/build-aux/missing' automake-1.16"
+S["AUTOCONF"]="${SHELL} '/home/niels/Documents/projects/UGA/L3/prog5/projet_prog5/build-aux/missing' autoconf"
+S["ACLOCAL"]="${SHELL} '/home/niels/Documents/projects/UGA/L3/prog5/projet_prog5/build-aux/missing' aclocal-1.16"
 S["VERSION"]="1.5"
 S["PACKAGE"]="arm_simulator"
 S["CYGPATH_W"]="echo"
@@ -768,7 +768,6 @@ D["PACKAGE_BUGREPORT"]=" \"Guillaume.Huard@imag.fr\""
 D["PACKAGE_URL"]=" \"\""
 D["PACKAGE"]=" \"arm_simulator\""
 D["VERSION"]=" \"1.5\""
-D["YYTEXT_POINTER"]=" 1"
 D["HAVE_STDIO_H"]=" 1"
 D["HAVE_STDLIB_H"]=" 1"
 D["HAVE_STRING_H"]=" 1"
