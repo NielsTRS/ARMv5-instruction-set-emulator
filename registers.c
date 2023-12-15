@@ -53,22 +53,9 @@ registers registers_create() {
         return NULL;
     }
 
-    r->reg[0] = 0;
-    r->reg[1] = 0;
-    r->reg[2] = 0;
-    r->reg[3] = 0;
-    r->reg[4] = 0;
-    r->reg[5] = 0;
-    r->reg[6] = 0;
-    r->reg[7] = 0;
-    r->reg[8] = 0;
-    r->reg[9] = 0;
-    r->reg[10] = 0;
-    r->reg[11] = 0;
-    r->reg[12] = 0;
-    r->reg[13] = 0; // sp
-    r->reg[14] = 0; // lr
-    r->reg[15] = 0; // pc
+    for (int i = 0; i < 16; i++) {
+        r->reg[i] = 0;
+    }
     r->cpsr = 0;
     r->spsr = 0;
 
