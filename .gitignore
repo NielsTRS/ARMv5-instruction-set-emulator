@@ -1,0 +1,13 @@
+.deps/
+autom4te.cache/
+Examples/.deps
+Examples/example1
+Examples/example2
+Examples/example3
+Examples/example4
+Examples/insertion_sort
+*.o
+arm_simulator
+memory_test
+registers_test
+send_irq
