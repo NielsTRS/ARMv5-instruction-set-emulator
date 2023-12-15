@@ -1,4 +1,5 @@
 .deps/
+.idea/
 autom4te.cache/
 Examples/.deps
 Examples/example1
