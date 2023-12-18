@@ -42,6 +42,23 @@ Contact: Guillaume.Huard@imag.fr
 #define BIC 0x0E
 #define MVN 0x0F
 
+/* ARM Cond */
+#define EQ 0x00
+#define NE 0x01
+#define CS_HS 0x02
+#define CC_LO 0x03
+#define MI 0x04
+#define PL 0x05
+#define VS 0x06
+#define VC 0x07
+#define HI 0x08
+#define LS 0x09
+#define GE 0x0A
+#define LT 0x0B
+#define GT 0x0C
+#define LE 0x0D
+#define AL 0x0E
+
 /* ARM Modes */
 #define USR 0x10
 #define FIQ 0x11
