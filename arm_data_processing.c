@@ -29,7 +29,44 @@ Contact: Guillaume.Huard@imag.fr
 
 /* Decoding functions for different classes of instructions */
 int arm_data_processing_shift(arm_core p, uint32_t ins) {
-    return UNDEFINED_INSTRUCTION;
+	int opcode = (ins >> 21) & 0x0F;
+
+	switch (opcode) {
+		case 0x00:
+			return AND;
+		case 0x01:
+			return EOR;
+		case 0x02:
+			return SUB;
+		case 0x03:
+			return RSB;
+		case 0x04:
+			return ADD;
+		case 0x05:
+			return ADC;
+		case 0x06:
+			return SBC;
+		case 0x07:
+			return RSC;
+		case 0x08:
+			return TST;
+		case 0x09:
+			return TEQ;
+		case 0x0A:
+			return CMP;
+		case 0x0B:
+			return CMN;
+		case 0x0C:
+			return ORR;
+		case 0x0D:
+			return MOV;
+		case 0x0E:
+			return BIC;
+		case 0x0F:
+			return MVN;
+		default:
+			return UNDEFINED_INSTRUCTION;
+	}
 }
 
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
