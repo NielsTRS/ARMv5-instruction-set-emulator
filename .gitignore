@@ -13,4 +13,6 @@ memory_test
 registers_test
 send_irq
 config.log
+config.h
+config.status
 Makefile
