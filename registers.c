@@ -24,20 +24,14 @@ Contact: Guillaume.Huard@imag.fr
 #include "arm_constants.h"
 #include <stdlib.h>
 
+//VOIR SI ON PEUT MIEUX UTILISER arm_constants.c
+
 struct registers_data {
     /* à compléter... */
     uint32_t *reg; // r0-r12:utilisation libre, r13:sp, r14:lr, r15:pc
     uint32_t cpsr;  // CPSR
     uint32_t spsr;  // SPSR
 };
-
-// Définition des modes ARMv5
-#define MODE_USER 0x10
-#define MODE_FIQ  0x11 // Fast Interrupt Request
-#define MODE_IRQ  0x12 // Interrupt Request
-#define MODE_SVC  0x13 // Supervisor
-#define MODE_ABT  0x17 // Abort
-#define MODE_UND  0x1B // Undefined
 
 registers registers_create() {
     /* registers r = NULL; */
@@ -85,14 +79,14 @@ uint8_t registers_get_mode(registers r) {
 static int registers_mode_has_spsr(registers r, uint8_t mode) { //POURQUOI METTRE r ??
     /*   compléter... */
     switch (mode) {
-        case MODE_FIQ:
-        case MODE_IRQ:
-        case MODE_SVC:
-        case MODE_ABT:
-        case MODE_UND:
+        case FIQ:
+        case IRQ:
+        case SVC:
+        case ABT:
+        case UND:
             return 1; // True, le mode a un SPSR associé
         default:
-            return 0; // False, le mode n'a pas de SPSR associé ( mode=MODE_USER )
+            return 0; // False, le mode n'a pas de SPSR associé ( mode=SYS ou mode=USR )
     }
 }
 
@@ -108,17 +102,18 @@ int registers_in_a_privileged_mode(registers r) {
     uint32_t currentMode = r->cpsr & modeMask;
 
     // Vérifier si le mode est un mode privilégié (SVC ou supérieur)
-    return (currentMode >= MODE_SVC);
+    return (currentMode >= SVC);
 }
 
 uint32_t registers_read(registers r, uint8_t mode, uint8_t reg) {
     switch (mode) {
-        case MODE_USER:
-        case MODE_FIQ:     
-        case MODE_IRQ:
-        case MODE_SVC:
-        case MODE_ABT:
-        case MODE_UND:
+        case USR:
+        case FIQ:
+        case IRQ:
+        case SVC:
+        case ABT:
+        case UND:
+        case SYS:
             return r->reg[reg];
         default:
             // Mode inconnu
@@ -135,11 +130,13 @@ uint32_t registers_read_cpsr(registers r) {
 
 uint32_t registers_read_spsr(registers r, uint8_t mode) {
     switch (mode) {
-        case MODE_FIQ:
-        case MODE_IRQ:
-        case MODE_SVC:
-        case MODE_ABT:
-        case MODE_UND:
+        case USR:
+        case FIQ:
+        case IRQ:
+        case SVC:
+        case ABT:
+        case UND:
+        case SYS:
             return r->spsr;
         default:
             // Mode inconnu
@@ -149,12 +146,13 @@ uint32_t registers_read_spsr(registers r, uint8_t mode) {
 
 void registers_write(registers r, uint8_t reg, uint8_t mode, uint32_t value) {
     switch (mode) {
-        case MODE_USER:
-        case MODE_FIQ:
-        case MODE_IRQ:
-        case MODE_SVC:
-        case MODE_ABT:
-        case MODE_UND:
+        case USR:
+        case FIQ:
+        case IRQ:
+        case SVC:
+        case ABT:
+        case UND:
+        case SYS:
             r->reg[reg] = value;
             break;
         default:
@@ -170,11 +168,13 @@ void registers_write_cpsr(registers r, uint32_t value) {
 
 void registers_write_spsr(registers r, uint8_t mode, uint32_t value) {
     switch (mode) {
-        case MODE_FIQ:
-        case MODE_IRQ:
-        case MODE_SVC:
-        case MODE_ABT:
-        case MODE_UND:
+        case USR:
+        case FIQ:
+        case IRQ:
+        case SVC:
+        case ABT:
+        case UND:
+        case SYS:
             r->spsr = value;
             break;
         default:
