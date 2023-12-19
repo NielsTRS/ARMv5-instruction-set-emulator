@@ -31,6 +31,7 @@ int arm_branch(arm_core p, uint32_t ins) {
     uint8_t l_bit = get_bit(ins, 24);
     uint32_t address;
     uint8_t a_bit = get_bit(ins, 23);
+    uint32_t pc = arm_read_register(p, 15);
     int result;
 
     switch (cond) {
@@ -85,20 +86,21 @@ int arm_branch(arm_core p, uint32_t ins) {
     }
 
     if (result){
-        printf("%x\n", ins);
+        printf("Code instruction : %x\n", ins);
         address = get_bits(ins, 23, 0);
-        printf("%x\n", address);
+        printf("Code adresse immed24 : %x\n", address);
         if(a_bit == 0x01){ // bit 23 à 1 (nombre négatif)
-            // insérer 8 bits vallant 1 gauche
-            address = address | 0xFF000000;
+            // insérer 6 bits vallant 1 gauche
+            address |= 0x3F000000;
         }
+        printf("Code immed30 après insertion : %x\n", address);
+        address <<= 2;
+        printf("Code immed32 : %x\n", address);
+        address += pc;
         printf("%x\n", address);
-        address = address << 2;
-        printf("%x\n", address);
-        address = ins + address + 8;
-        printf("%x\n", address);
+
         if(l_bit == 0x01){ // L = 1
-            arm_write_register(p, 14, address); // R14 / LR
+            arm_write_register(p, 14, pc); // R14 / LR (a tester)
         }
         arm_write_register(p, 15, address); // R15 / PC
         return 0;
