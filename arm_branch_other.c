@@ -32,6 +32,7 @@ int arm_branch(arm_core p, uint32_t ins) {
     uint32_t address;
     uint8_t a_bit = get_bit(ins, 23);
     uint32_t pc = arm_read_register(p, 15);
+    printf("Code PC : %x\n", pc);
     int result;
 
     switch (cond) {
@@ -97,10 +98,12 @@ int arm_branch(arm_core p, uint32_t ins) {
         address <<= 2;
         printf("Code immed32 : %x\n", address);
         address += pc;
-        printf("%x\n", address);
+        printf("Code PC branchement : %x\n", address);
+        printf("Code PC : %x\n", pc);
+        printf("Code LR : %x\n", pc+4);
 
         if(l_bit == 0x01){ // L = 1
-            arm_write_register(p, 14, pc); // R14 / LR (a tester)
+            arm_write_register(p, 14, pc - 4); // R14 / LR
         }
         arm_write_register(p, 15, address); // R15 / PC
         return 0;
