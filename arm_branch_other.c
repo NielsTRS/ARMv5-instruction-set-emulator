@@ -85,19 +85,22 @@ int arm_branch(arm_core p, uint32_t ins) {
     }
 
     if (result){
+        printf("%x\n", ins);
         address = get_bits(ins, 23, 0);
+        printf("%x\n", address);
         if(a_bit == 0x01){ // bit 23 à 1 (nombre négatif)
-            // insérer 6 bits vallant 1 gauche
-            address = address & 0xFC000000;
-        } else {
-            // insérer 6 bits vallant 0 gauche
-            address = address | 0x03FFFFFF;
+            // insérer 8 bits vallant 1 gauche
+            address = address | 0xFF000000;
         }
+        printf("%x\n", address);
         address = address << 2;
+        printf("%x\n", address);
+        address = ins + address + 8;
+        printf("%x\n", address);
         if(l_bit == 0x01){ // L = 1
             arm_write_register(p, 14, address); // R14 / LR
         }
-        arm_write_register(p, 15, ins + address + 8); // R15 / PC
+        arm_write_register(p, 15, address); // R15 / PC
         return 0;
     }
 
