@@ -38,9 +38,9 @@ if $run_option
 then
   if $debug_option
   then
-    ./arm_simulator --gdb-port 50000 --irq-port 50001 --trace-memory --trace-registers --trace-position --trace-state USR --trace-file trace.txt &
+    ./arm_simulator --gdb-port 50000 --irq-port 50001 --trace-memory --trace-registers --trace-position --trace-state USR --trace-file trace.txt > run.log 2>&1 &
   else
-    ./arm_simulator --gdb-port 50000 --irq-port 50001 &
+    ./arm_simulator --gdb-port 50000 --irq-port 50001 > run.log 2>&1 &
   fi
   gdb-multiarch
 fi
