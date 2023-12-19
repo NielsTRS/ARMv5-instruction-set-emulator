@@ -2,8 +2,9 @@
 
 make_option=false
 run_option=false
+debug_option=false
 
-while getopts ":mr" opt
+while getopts ":mrd" opt
 do
   case $opt in
     m)
@@ -11,6 +12,9 @@ do
       ;;
     r)
       run_option=true
+      ;;
+    d)
+      debug_option=true
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -32,15 +36,11 @@ fi
 
 if $run_option
 then
-  ./arm_simulator --gdb-port 50000 --irq-port 50001 &
-  gdb-multiarch
-fi
-
-if ! $make_option && ! $run_option
-then
-  make distclean
-  ./configure CFLAGS='-Werror -Wall -g'
-  make
-  ./arm_simulator --gdb-port 50000 --irq-port 50001 &
+  if $debug_option
+  then
+    ./arm_simulator --gdb-port 50000 --irq-port 50001 --trace-memory --trace-registers --trace-position --trace-state USR --trace-file trace.txt &
+  else
+    ./arm_simulator --gdb-port 50000 --irq-port 50001 &
+  fi
   gdb-multiarch
 fi

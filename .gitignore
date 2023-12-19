@@ -16,3 +16,4 @@ config.log
 config.h
 config.status
 Makefile
+trace.txt
