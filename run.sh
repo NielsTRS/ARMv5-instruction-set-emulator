@@ -17,15 +17,17 @@ do
       debug_option=true
       ;;
     \?)
-      echo "Invalid option: -$OPTARG" >&2
-      exit 1
-      ;;
-    :)
-      echo "Option -$OPTARG requires an argument." >&2
+      echo "Option invalide: -$OPTARG" >&2
       exit 1
       ;;
   esac
 done
+
+if $debug_option && ! $run_option
+then
+  echo "Option -d a besoin de l'option -r"
+  exit 1
+fi
 
 if $make_option
 then
