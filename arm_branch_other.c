@@ -95,9 +95,9 @@ int arm_branch(arm_core p, uint32_t ins) {
         }
         address = address << 2;
         if(l_bit == 0x01){ // L = 1
-            arm_write_register(p, 0x0E, address); // R14 / LR
+            arm_write_register(p, 14, address); // R14 / LR
         }
-        arm_write_register(p, 0x0F, ins + address + 8); // R15 / PC
+        arm_write_register(p, 15, ins + address + 8); // R15 / PC
         return 0;
     }
 
