@@ -44,5 +44,6 @@ then
   else
     ./arm_simulator --gdb-port 50000 --irq-port 50001 > run.log 2>&1 &
   fi
-  gdb-multiarch
+  echo -e "target remote localhost:50000\nset endian big" > commands.gdb
+  gdb-multiarch -x commands.gdb
 fi

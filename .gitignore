@@ -18,3 +18,4 @@ config.status
 Makefile
 trace.txt
 run.log
+commands.gdb
