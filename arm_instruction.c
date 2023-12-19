@@ -42,7 +42,7 @@ static int arm_execute_instruction(arm_core p) {
     br = get_bits(ins, 31, 28);
     
     
-    if(br == 0x0D){ //cond = 1110 (ALWAYS)
+    if(br == 0x0E){ //cond = 1110 (ALWAYS)
         result = switch_type(p, ins);
     }
     else if(br == 0x0F){ //cond = 1111 (cas chelou)
