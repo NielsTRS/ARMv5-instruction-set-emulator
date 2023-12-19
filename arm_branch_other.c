@@ -1,24 +1,24 @@
 /*
-Armator - simulateur de jeu d'instruction ARMv5T à but pédagogique
+Armator - simulateur de jeu d'instruction ARMv5T ï¿½ but pï¿½dagogique
 Copyright (C) 2011 Guillaume Huard
 Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
-termes de la Licence Publique Générale GNU publiée par la Free Software
-Foundation (version 2 ou bien toute autre version ultérieure choisie par vous).
+termes de la Licence Publique Gï¿½nï¿½rale GNU publiï¿½e par la Free Software
+Foundation (version 2 ou bien toute autre version ultï¿½rieure choisie par vous).
 
-Ce programme est distribué car potentiellement utile, mais SANS AUCUNE
+Ce programme est distribuï¿½ car potentiellement utile, mais SANS AUCUNE
 GARANTIE, ni explicite ni implicite, y compris les garanties de
-commercialisation ou d'adaptation dans un but spécifique. Reportez-vous à la
-Licence Publique Générale GNU pour plus de détails.
+commercialisation ou d'adaptation dans un but spï¿½cifique. Reportez-vous ï¿½ la
+Licence Publique Gï¿½nï¿½rale GNU pour plus de dï¿½tails.
 
-Vous devez avoir reçu une copie de la Licence Publique Générale GNU en même
-temps que ce programme ; si ce n'est pas le cas, écrivez à la Free Software
+Vous devez avoir reï¿½u une copie de la Licence Publique Gï¿½nï¿½rale GNU en mï¿½me
+temps que ce programme ; si ce n'est pas le cas, ï¿½crivez ï¿½ la Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
-États-Unis.
+ï¿½tats-Unis.
 
 Contact: Guillaume.Huard@imag.fr
-	 Bâtiment IMAG
+	 Bï¿½timent IMAG
 	 700 avenue centrale, domaine universitaire
-	 38401 Saint Martin d'Hères
+	 38401 Saint Martin d'Hï¿½res
 */
 #include "arm_branch_other.h"
 #include "arm_constants.h"
@@ -26,8 +26,81 @@ Contact: Guillaume.Huard@imag.fr
 #include <debug.h>
 #include <stdlib.h>
 
-
 int arm_branch(arm_core p, uint32_t ins) {
+    uint8_t cond = get_bits(ins, 31, 28);
+    uint8_t l_bit = get_bit(ins, 24);
+    uint32_t address;
+    uint8_t a_bit = get_bit(ins, 23);
+    int result;
+
+    switch (cond) {
+        case EQ:
+            result = get_bit(arm_read_cpsr(p), Z) == 1;
+            break;
+        case NE:
+            result = get_bit(arm_read_cpsr(p), Z) == 0;
+            break;
+        case CS_HS:
+            result = get_bit(arm_read_cpsr(p), C) == 1;
+            break;
+        case CC_LO:
+            result = get_bit(arm_read_cpsr(p), C) == 0;
+            break;
+        case MI:
+            result = get_bit(arm_read_cpsr(p), N) == 1;
+            break;
+        case PL:
+            result = get_bit(arm_read_cpsr(p), N) == 0;
+            break;
+        case VS:
+            result = get_bit(arm_read_cpsr(p), V) == 1;
+            break;
+        case VC:
+            result = get_bit(arm_read_cpsr(p), V) == 0;
+            break;
+        case HI:
+            result = get_bit(arm_read_cpsr(p), C) == 1 && get_bit(arm_read_cpsr(p), Z) == 0;
+            break;
+        case LS:
+            result = get_bit(arm_read_cpsr(p), C) == 0 || get_bit(arm_read_cpsr(p), Z) == 1;
+            break;
+        case GE:
+            result = get_bit(arm_read_cpsr(p), N) == get_bit(arm_read_cpsr(p), V);
+            break;
+        case LT:
+            result = get_bit(arm_read_cpsr(p), N) != get_bit(arm_read_cpsr(p), V);
+            break;
+        case GT:
+            result = get_bit(arm_read_cpsr(p), Z) == 0 && (get_bit(arm_read_cpsr(p), N) == get_bit(arm_read_cpsr(p), V));
+            break;
+        case LE:
+            result = get_bit(arm_read_cpsr(p), Z) == 1 || (get_bit(arm_read_cpsr(p), N) != get_bit(arm_read_cpsr(p), V));
+            break;
+        case AL:
+            result = 1;
+            break;
+        default:
+            result = 0;
+            break;
+    }
+
+    if (result){
+        address = get_bits(ins, 23, 0);
+        if(a_bit == 0x01){ // bit 23 Ã  1 (nombre nÃ©gatif)
+            // insÃ©rer 6 bits vallant 1 gauche
+            address = address & 0xFC000000;
+        } else {
+            // insÃ©rer 6 bits vallant 0 gauche
+            address = address | 0x03FFFFFF;
+        }
+        address = address << 2;
+        if(l_bit == 0x01){ // L = 1
+            arm_write_register(p, 0x0E, address); // R14 / LR
+        }
+        arm_write_register(p, 0x0F, ins + address + 8); // R15 / PC
+        return 0;
+    }
+
     return UNDEFINED_INSTRUCTION;
 }
 
