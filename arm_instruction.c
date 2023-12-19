@@ -31,12 +31,11 @@ Contact: Guillaume.Huard@imag.fr
 static int arm_execute_instruction(arm_core p) {
 
     uint32_t ins;
-    uint32_t pc;
     int result;
     uint8_t br;
-    
-    pc = arm_read_register(p, 15);
-    result = arm_read_word(p, pc, &ins);
+
+
+    result = arm_fetch(p, &ins);
     if(result != 0){
         return result;
     } 
@@ -52,8 +51,7 @@ static int arm_execute_instruction(arm_core p) {
     else{
         result = arm_branch(p, ins);
     }
-    result = arm_fetch(p, &ins);
-    return result;
+    return -1;
 }
 
 int switch_type(arm_core p, uint32_t pc){
