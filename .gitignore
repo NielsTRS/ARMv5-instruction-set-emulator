@@ -22,3 +22,4 @@ commands.gdb
 configure~
 *.in
 stamp-h1
+aclocal.m4
