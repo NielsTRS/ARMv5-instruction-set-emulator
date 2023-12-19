@@ -33,7 +33,8 @@ memory memory_create(size_t size) {
     memory mem = malloc(sizeof(struct memory_data));
     mem->size = size;
     mem->data = calloc(size,sizeof(uint8_t));
-    if(mem == NULL || mem->data == NULL){
+    if(mem->data == NULL){
+        free(mem);
         return  NULL;
     }
     return mem;
@@ -49,7 +50,7 @@ void memory_destroy(memory mem) {
 }
 
 int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
-    if(address < mem->size && mem != NULL){
+    if(mem != NULL && address < mem->size){
         *value = mem->data[address];
         return 0;
     }
@@ -57,7 +58,7 @@ int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
 }
 
 int memory_read_half(memory mem, uint32_t address, uint16_t *value, uint8_t be) {
-    if(address < mem->size - 1 && mem != NULL){
+    if(mem != NULL && address < mem->size - 1){
         *value = (uint16_t)mem->data[address] | (uint16_t)mem->data[address + 1] << 8;
         if (be) {
             *value = reverse_2(*value);
@@ -68,8 +69,8 @@ int memory_read_half(memory mem, uint32_t address, uint16_t *value, uint8_t be) 
 }
 
 int memory_read_word(memory mem, uint32_t address, uint32_t *value, uint8_t be) {
-    if(address < mem->size - 3 && mem != NULL && mem->data != NULL){
-        *value = (uint32_t)mem->data[address] | (uint32_t)mem->data[address + 1] << 8 | (uint32_t)mem->data[address + 2] << 16 | (uint32_t)mem->data[address + 3] << 24;
+    if(mem != NULL && address < mem->size - 3){
+        *value = *(mem->data + address) | *(mem->data + address + 1) << 8 | *(mem->data + address + 2) << 16 | *(mem->data + address + 3) << 24;
         if (be) {
             *value = reverse_4(*value);
         }
@@ -79,7 +80,7 @@ int memory_read_word(memory mem, uint32_t address, uint32_t *value, uint8_t be) 
 }
 
 int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
-    if(address < mem->size && mem != NULL){
+    if(mem != NULL && address < mem->size){
         *(mem->data + address) = value;
         return 0;
     }
@@ -87,7 +88,7 @@ int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
 }
 
 int memory_write_half(memory mem, uint32_t address, uint16_t value, uint8_t be) {
-    if(address < mem->size - 1 && mem != NULL){
+    if(mem != NULL && address < mem->size - 1){
         if (be) {
             value = reverse_2(value);
         }
@@ -99,7 +100,7 @@ int memory_write_half(memory mem, uint32_t address, uint16_t value, uint8_t be) 
 }
 
 int memory_write_word(memory mem, uint32_t address, uint32_t value, uint8_t be) {
-    if(address < mem->size - 3 && mem != NULL){
+    if(mem != NULL && address < mem->size - 3){
         if (be) {
             value = reverse_4(value);
         }

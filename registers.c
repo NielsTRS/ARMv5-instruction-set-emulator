@@ -27,28 +27,21 @@ Contact: Guillaume.Huard@imag.fr
 //VOIR SI ON PEUT MIEUX UTILISER arm_constants.c
 
 struct registers_data {
-    /* à compléter... */
     uint32_t *reg; // r0-r12:utilisation libre, r13:sp, r14:lr, r15:pc
     uint32_t cpsr;  // CPSR
     uint32_t spsr;  // SPSR
 };
 
 registers registers_create() {
-    /* registers r = NULL; */
-    /* à compléter... */
 
     registers r = malloc(sizeof(struct registers_data));
     if (r == NULL) {
         return NULL;
     }
-    r->reg = malloc(sizeof(uint32_t)*16);
+    r->reg = calloc(16, sizeof(uint32_t));
     if (r->reg == NULL) {
         free(r);
         return NULL;
-    }
-
-    for (int i = 0; i < 16; i++) {
-        r->reg[i] = 0;
     }
     r->cpsr = 0;
     r->spsr = 0;
@@ -57,7 +50,6 @@ registers registers_create() {
 }
 
 void registers_destroy(registers r) {
-    /*   compléter... */
     free(r->reg);
     free(r);
 }

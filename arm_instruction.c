@@ -29,23 +29,30 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 
 static int arm_execute_instruction(arm_core p) {
-    uint32_t *pc = 0x00000000;
+
+    uint32_t ins;
+    uint32_t pc;
     int result;
     uint8_t br;
-
-    result = arm_fetch(p, pc);
-    br = get_bits(*pc, 31, 28);
+    
+    pc = arm_read_register(p, 15);
+    result = arm_read_word(p, pc, &ins);
+    if(result != 0){
+        return result;
+    } 
+    br = get_bits(ins, 31, 28);
     
     
     if(br == 0x0D){ //cond = 1110 (ALWAYS)
-        result = switch_type(p, *pc);
+        result = switch_type(p, ins);
     }
     else if(br == 0x0F){ //cond = 1111 (cas chelou)
-        result = arm_miscellaneous(p, *pc);
+        result = arm_miscellaneous(p, ins);
     }
     else{
-        result = arm_branch(p, *pc);
+        result = arm_branch(p, ins);
     }
+    result = arm_fetch(p, &ins);
     return result;
 }
 
