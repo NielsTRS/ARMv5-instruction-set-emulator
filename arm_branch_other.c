@@ -29,10 +29,9 @@ Contact: Guillaume.Huard@imag.fr
 int arm_branch(arm_core p, uint32_t ins) {
     uint8_t cond = get_bits(ins, 31, 28);
     uint8_t l_bit = get_bit(ins, 24);
-    uint32_t address;
     uint8_t a_bit = get_bit(ins, 23);
     uint32_t pc = arm_read_register(p, 15);
-    printf("Code PC : %x\n", pc);
+    uint32_t address;
     int result;
 
     switch (cond) {
@@ -41,6 +40,7 @@ int arm_branch(arm_core p, uint32_t ins) {
             break;
         case NE:
             result = get_bit(arm_read_cpsr(p), Z) == 0;
+            result = 0; //test vu qu'il y a pas de mises a jours des flags pour le moment
             break;
         case CS_HS:
             result = get_bit(arm_read_cpsr(p), C) == 1;
@@ -82,34 +82,30 @@ int arm_branch(arm_core p, uint32_t ins) {
             result = 1;
             break;
         default:
-            result = 0;
+            result = -1;
             break;
     }
 
-    if (result){
-        printf("Code instruction : %x\n", ins);
+    if (result == 1){ // Condition vrai
         address = get_bits(ins, 23, 0);
-        printf("Code adresse immed24 : %x\n", address);
         if(a_bit == 0x01){ // bit 23 à 1 (nombre négatif)
             // insérer 6 bits vallant 1 gauche
             address |= 0x3F000000;
         }
-        printf("Code immed30 après insertion : %x\n", address);
         address <<= 2;
-        printf("Code immed32 : %x\n", address);
         address += pc;
-        printf("Code PC branchement : %x\n", address);
-        printf("Code PC : %x\n", pc);
-        printf("Code LR : %x\n", pc+4);
 
         if(l_bit == 0x01){ // L = 1
             arm_write_register(p, 14, pc - 4); // R14 / LR
         }
         arm_write_register(p, 15, address); // R15 / PC
         return 0;
+    } else if (result == 0){ // Condition Fausse
+        arm_write_register(p, 15, pc-4);
+        return 0;
+    } else {
+        return UNDEFINED_INSTRUCTION;
     }
-
-    return UNDEFINED_INSTRUCTION;
 }
 
 int arm_coprocessor_others_swi(arm_core p, uint32_t ins) {
