@@ -29,47 +29,175 @@ Contact: Guillaume.Huard@imag.fr
 
 /* Decoding functions for different classes of instructions */
 int arm_data_processing_shift(arm_core p, uint32_t ins) {
-	int opcode = (ins >> 21) & 0x0F;
+    uint8_t opcode,r1,r2,r3;
+    //int result;
 
-	switch (opcode) {
-		case 0x00:
-			return AND;
-		case 0x01:
-			return EOR;
-		case 0x02:
-			return SUB;
-		case 0x03:
-			return RSB;
-		case 0x04:
-			return ADD;
-		case 0x05:
-			return ADC;
-		case 0x06:
-			return SBC;
-		case 0x07:
-			return RSC;
-		case 0x08:
-			return TST;
-		case 0x09:
-			return TEQ;
-		case 0x0A:
-			return CMP;
-		case 0x0B:
-			return CMN;
-		case 0x0C:
-			return ORR;
-		case 0x0D:
-			return MOV;
-		case 0x0E:
-			return BIC;
-		case 0x0F:
-			return MVN;
-		default:
-			return UNDEFINED_INSTRUCTION;
-	}
+    opcode = get_bits(ins, 24, 21);
+
+    r1 = arm_read_register(p, get_bits(ins, 19, 16));
+    r2 = arm_read_register(p, get_bits(ins, 15, 12));
+    r3 = arm_read_register(p, get_bits(ins, 4, 0));
+
+
+    switch(opcode){
+        case AND:
+            r2 = r1 & r3;
+			arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case EOR:
+            r2 = r1 ^ r3;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case SUB:
+            r2 = r1 - r3;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case RSB:
+            r2 = r3 - r1;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case ADD:
+            r2 = r1 + r3;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case ADC:
+            r2 = r1 + r3 /*+ FLAG C*/;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case SBC:
+            r2 = r1 - r3 /*- NOT(FLAG C)*/;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case RSC:
+            r2 = r3 - r1 /*- NOT(FLAG C)*/;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case TST: 
+            r2 = r1 & r3;
+            //update_flags(r2);
+            break;
+        case TEQ:
+            r2 = r1 ^ r3;
+            //update_flags(r2);
+            break;
+        case CMP:
+            r2 = r1 - r3;
+            //update_flags(r2);
+            break;
+        case CMN:
+            r2 = r1 + r3;
+            //update_flags(r2);
+            break;
+        case ORR:
+            r2 = r1 | r3;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case MOV:
+            r2 = r3;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case BIC:
+            r2 = r1 & ~(r3);
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case MVN:
+            r2 = ~(r3);
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        default:
+            return -1;
+    }
+    return 0;
 }
 
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
-    return UNDEFINED_INSTRUCTION;
+uint8_t opcode,r1,r2,v1;
+    //int result;
+
+    opcode = get_bits(ins, 24, 21);
+
+    r1 = arm_read_register(p, get_bits(ins, 19, 16));
+    r2 = arm_read_register(p, get_bits(ins, 15, 12));
+    v1 = get_bits(ins, 7, 0);
+
+
+    switch(opcode){
+        case AND:
+            r2 = r1 & v1;
+			arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case EOR:
+            r2 = r1 ^ v1;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case SUB:
+            r2 = r1 - v1;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case RSB:
+            r2 = v1 - r1;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case ADD:
+            r2 = r1 + v1;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case ADC:
+            r2 = r1 + v1 /*+ FLAG C*/;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case SBC:
+            r2 = r1 - v1 /*- NOT(FLAG C)*/;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case RSC:
+            r2 = v1 - r1 /*- NOT(FLAG C)*/;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case TST: 
+            r2 = r1 & v1;
+            //update_flags(r2);
+            break;
+        case TEQ:
+            r2 = r1 ^ v1;
+            //update_flags(r2);
+            break;
+        case CMP:
+            r2 = r1 - v1;
+            //update_flags(r2);
+            break;
+        case CMN:
+            r2 = r1 + v1;
+            //update_flags(r2);
+            break;
+        case ORR:
+            r2 = r1 | v1;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case MOV:
+            r2 = v1;
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case BIC:
+            r2 = r1 & ~(v1);
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        case MVN:
+            r2 = ~(v1);
+            arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)r2);
+            break;
+        default:
+            return -1;
+    }
+    return 0;
 }
 
+int add(uint32_t ins){
+    int s = get_bit(ins, 20);
+
+
+    if (s){
+        //update_flags();
+    }
+	return -1;
+}

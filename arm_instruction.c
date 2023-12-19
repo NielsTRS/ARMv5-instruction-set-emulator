@@ -29,16 +29,16 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 
 static int arm_execute_instruction(arm_core p) {
-    uint32_t *pc = NULL;
+    uint32_t *pc = 0x00000000;
     int result;
-    int instr;
     uint8_t br;
 
     result = arm_fetch(p, pc);
-    br = get_bits(*pc, 28, 4);
+    br = get_bits(*pc, 31, 28);
     
-    if(br == 0x0D){ //cond = 1110(ALWAYS)
-        instr = switch_type(p, *pc);
+    
+    if(br == 0x0D){ //cond = 1110 (ALWAYS)
+        result = switch_type(p, *pc);
     }
     else if(br == 0x0F){ //cond = 1111 (cas chelou)
         result = arm_miscellaneous(p, *pc);
@@ -46,19 +46,13 @@ static int arm_execute_instruction(arm_core p) {
     else{
         result = arm_branch(p, *pc);
     }
-    instr +=1;
-
-    
-
-    
-
     return result;
 }
 
 int switch_type(arm_core p, uint32_t pc){
     int result;
     uint8_t type;
-    type = get_bits(pc, 25, 3);
+    type = get_bits(pc, 27, 25);
 
     switch (type){
         case 0x00: //INSTR de type add r4, r3
