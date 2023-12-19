@@ -31,6 +31,7 @@ fi
 
 if $make_option
 then
+  autoreconf
   make distclean
   ./configure CFLAGS='-Werror -Wall -g'
   make

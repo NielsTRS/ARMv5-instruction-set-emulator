@@ -19,3 +19,5 @@ Makefile
 trace.txt
 run.log
 commands.gdb
+configure~
+*.in
