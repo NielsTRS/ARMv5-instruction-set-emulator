@@ -34,7 +34,7 @@ uint8_t registers_get_mode(registers r);
 int registers_current_mode_has_spsr(registers r);
 int registers_in_a_privileged_mode(registers r);
 
-uint32_t registers_read(registers r, uint8_t mode, uint8_t reg);
+uint32_t registers_read(registers r, uint8_t reg, uint8_t mode);
 uint32_t registers_read_cpsr(registers r);
 uint32_t registers_read_spsr(registers r, uint8_t mode);
 void registers_write(registers r, uint8_t reg, uint8_t mode, uint32_t value);

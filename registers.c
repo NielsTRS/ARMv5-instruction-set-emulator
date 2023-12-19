@@ -97,7 +97,7 @@ int registers_in_a_privileged_mode(registers r) {
     return (currentMode >= SVC);
 }
 
-uint32_t registers_read(registers r, uint8_t mode, uint8_t reg) {
+uint32_t registers_read(registers r, uint8_t reg, uint8_t mode) {
     switch (mode) {
         case USR:
         case FIQ:
