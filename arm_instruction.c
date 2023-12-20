@@ -47,7 +47,7 @@ static int arm_execute_instruction(arm_core p) {
         result = arm_miscellaneous(p, ins);
     }
 
-    return -1;
+    return result;
 }
 
 int arm_step(arm_core p) {

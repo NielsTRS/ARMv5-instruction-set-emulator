@@ -50,7 +50,7 @@ int arm_branch(arm_core p, uint32_t ins, int exec) {
         arm_write_register(p, 15, pc-4);
         return 0;
     } else {
-        return UNDEFINED_INSTRUCTION;
+        return -1;
     }
 }
 
