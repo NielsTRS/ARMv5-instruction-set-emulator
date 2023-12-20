@@ -26,66 +26,13 @@ Contact: Guillaume.Huard@imag.fr
 #include <debug.h>
 #include <stdlib.h>
 
-int arm_branch(arm_core p, uint32_t ins) {
-    uint8_t cond = get_bits(ins, 31, 28);
+int arm_branch(arm_core p, uint32_t ins, int exec) {
     uint8_t l_bit = get_bit(ins, 24);
     uint8_t a_bit = get_bit(ins, 23);
     uint32_t pc = arm_read_register(p, 15);
     uint32_t address;
-    int result;
 
-    switch (cond) {
-        case EQ:
-            result = get_bit(arm_read_cpsr(p), Z) == 1;
-            break;
-        case NE:
-            result = get_bit(arm_read_cpsr(p), Z) == 0;
-            break;
-        case CS_HS:
-            result = get_bit(arm_read_cpsr(p), C) == 1;
-            break;
-        case CC_LO:
-            result = get_bit(arm_read_cpsr(p), C) == 0;
-            break;
-        case MI:
-            result = get_bit(arm_read_cpsr(p), N) == 1;
-            break;
-        case PL:
-            result = get_bit(arm_read_cpsr(p), N) == 0;
-            break;
-        case VS:
-            result = get_bit(arm_read_cpsr(p), V) == 1;
-            break;
-        case VC:
-            result = get_bit(arm_read_cpsr(p), V) == 0;
-            break;
-        case HI:
-            result = get_bit(arm_read_cpsr(p), C) == 1 && get_bit(arm_read_cpsr(p), Z) == 0;
-            break;
-        case LS:
-            result = get_bit(arm_read_cpsr(p), C) == 0 || get_bit(arm_read_cpsr(p), Z) == 1;
-            break;
-        case GE:
-            result = get_bit(arm_read_cpsr(p), N) == get_bit(arm_read_cpsr(p), V);
-            break;
-        case LT:
-            result = get_bit(arm_read_cpsr(p), N) != get_bit(arm_read_cpsr(p), V);
-            break;
-        case GT:
-            result = get_bit(arm_read_cpsr(p), Z) == 0 && (get_bit(arm_read_cpsr(p), N) == get_bit(arm_read_cpsr(p), V));
-            break;
-        case LE:
-            result = get_bit(arm_read_cpsr(p), Z) == 1 || (get_bit(arm_read_cpsr(p), N) != get_bit(arm_read_cpsr(p), V));
-            break;
-        case AL:
-            result = 1;
-            break;
-        default:
-            result = -1;
-            break;
-    }
-
-    if (result == 1){ // Condition vrai
+    if (exec == 1){ // Condition vrai
         address = get_bits(ins, 23, 0);
         if(a_bit == 0x01){ // bit 23 à 1 (nombre négatif)
             // insérer 6 bits vallant 1 gauche
@@ -99,7 +46,7 @@ int arm_branch(arm_core p, uint32_t ins) {
         }
         arm_write_register(p, 15, address); // R15 / PC
         return 0;
-    } else if (result == 0){ // Condition Fausse
+    } else if (exec == 0){ // Condition Fausse
         arm_write_register(p, 15, pc-4);
         return 0;
     } else {

@@ -32,25 +32,21 @@ static int arm_execute_instruction(arm_core p) {
 
     uint32_t ins;
     int result;
-    uint8_t br;
-
+    int exec;
 
     result = arm_fetch(p, &ins);
     if(result != 0){
         return result;
-    } 
-    br = get_bits(ins, 31, 28);
-    
-    
-    if(br == 0x0E){ //cond = 1110 (ALWAYS)
-        result = switch_type(p, ins);
     }
-    else if(br == 0x0F){ //cond = 1111 (cas chelou)
+    exec = check_flags(p, ins);
+    if(exec == 1){
+        result = switch_type(p, ins);
+    } else if (exec == 0){
+        result = arm_branch(p, ins, 0);
+    } else {
         result = arm_miscellaneous(p, ins);
     }
-    else{
-        result = arm_branch(p, ins);
-    }
+
     return -1;
 }
 
@@ -83,11 +79,68 @@ int switch_type(arm_core p, uint32_t ins){
             result = arm_load_store_multiple(p, ins);
             break;
         case 0x05: //INSTR de type BL etiq
-            result = arm_branch(p, ins);
+            result = arm_branch(p, ins, 1);
             break;
         default: 
             result = -1; 
             break; 
+    }
+    return result;
+}
+
+int check_flags(arm_core p, uint32_t ins){
+    uint8_t cond = get_bits(ins, 31, 28);
+    int result;
+
+    switch (cond) {
+        case EQ:
+            result = get_bit(arm_read_cpsr(p), Z) == 1;
+            break;
+        case NE:
+            result = get_bit(arm_read_cpsr(p), Z) == 0;
+            break;
+        case CS_HS:
+            result = get_bit(arm_read_cpsr(p), C) == 1;
+            break;
+        case CC_LO:
+            result = get_bit(arm_read_cpsr(p), C) == 0;
+            break;
+        case MI:
+            result = get_bit(arm_read_cpsr(p), N) == 1;
+            break;
+        case PL:
+            result = get_bit(arm_read_cpsr(p), N) == 0;
+            break;
+        case VS:
+            result = get_bit(arm_read_cpsr(p), V) == 1;
+            break;
+        case VC:
+            result = get_bit(arm_read_cpsr(p), V) == 0;
+            break;
+        case HI:
+            result = get_bit(arm_read_cpsr(p), C) == 1 && get_bit(arm_read_cpsr(p), Z) == 0;
+            break;
+        case LS:
+            result = get_bit(arm_read_cpsr(p), C) == 0 || get_bit(arm_read_cpsr(p), Z) == 1;
+            break;
+        case GE:
+            result = get_bit(arm_read_cpsr(p), N) == get_bit(arm_read_cpsr(p), V);
+            break;
+        case LT:
+            result = get_bit(arm_read_cpsr(p), N) != get_bit(arm_read_cpsr(p), V);
+            break;
+        case GT:
+            result = get_bit(arm_read_cpsr(p), Z) == 0 && (get_bit(arm_read_cpsr(p), N) == get_bit(arm_read_cpsr(p), V));
+            break;
+        case LE:
+            result = get_bit(arm_read_cpsr(p), Z) == 1 || (get_bit(arm_read_cpsr(p), N) != get_bit(arm_read_cpsr(p), V));
+            break;
+        case AL:
+            result = 1;
+            break;
+        default:
+            result = -1;
+            break;
     }
     return result;
 }

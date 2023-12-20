@@ -26,5 +26,6 @@ Contact: Guillaume.Huard@imag.fr
 
 int arm_step(arm_core p);
 int switch_type(arm_core p, uint32_t ins);
+int check_flags(arm_core p, uint32_t ins);
 
 #endif
