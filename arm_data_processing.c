@@ -106,7 +106,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
         default:
             return -1;
     }
-    if (get_bit(ins, 20)){
+    if (get_bit(ins, 20) == 1){
         update_flags(p, res);
     }
     return 0;
@@ -190,7 +190,7 @@ int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
         default:
             return -1;
     }
-    if (get_bit(ins, 20)){
+    if (get_bit(ins, 20) == 1){
         update_flags(p, res);
     }
     return 0;
@@ -200,13 +200,13 @@ void update_flags(arm_core p, long res){
 
     uint32_t cpsr = arm_read_cpsr(p);
 
-    if(!(uint32_t)res){
+    if((uint32_t)res == 0){
         cpsr = set_bit(cpsr, Z);
     }
-    if(get_bit(res, 31)){
+    if(get_bit(res, 31) == 1){
         cpsr = set_bit(cpsr, N);
     }
-    if(get_bit(res, 32)){
+    if(get_bit(res, 32) == 1){
         cpsr = set_bit(cpsr, C);
     }
     if((res < 0 && get_bit(res, 31) == 0) || (res > 0 && get_bit(res,31) == 1)){
