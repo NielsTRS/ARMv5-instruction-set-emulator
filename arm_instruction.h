@@ -25,6 +25,6 @@ Contact: Guillaume.Huard@imag.fr
 #include "arm_core.h"
 
 int arm_step(arm_core p);
-int switch_type(arm_core p, uint32_t pc);
+int switch_type(arm_core p, uint32_t ins);
 
 #endif

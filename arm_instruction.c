@@ -54,6 +54,16 @@ static int arm_execute_instruction(arm_core p) {
     return -1;
 }
 
+int arm_step(arm_core p) {
+    int result;
+
+    result = arm_execute_instruction(p);
+    if (result) {
+        return arm_exception(p, result);
+    }
+    return result;
+}
+
 int switch_type(arm_core p, uint32_t ins){
     int result;
     uint8_t type;
@@ -78,16 +88,6 @@ int switch_type(arm_core p, uint32_t ins){
         default: 
             result = -1; 
             break; 
-    }
-    return result;
-}
-
-int arm_step(arm_core p) {
-    int result;
-
-    result = arm_execute_instruction(p);
-    if (result) {
-        return arm_exception(p, result);
     }
     return result;
 }
