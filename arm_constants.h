@@ -42,6 +42,16 @@ Contact: Guillaume.Huard@imag.fr
 #define BIC 0x0E
 #define MVN 0x0F
 
+/* Ajout des macros load_store */
+#define LDR 0x00
+#define LDRB 0x01
+#define LDRH 0x02
+#define STR 0x03
+#define STRB 0x04
+#define STRH 0x05
+#define LDM 0x06
+#define STM 0x07
+
 /* ARM Cond */
 #define EQ 0x00
 #define NE 0x01
