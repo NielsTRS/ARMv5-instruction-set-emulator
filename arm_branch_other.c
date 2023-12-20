@@ -40,7 +40,6 @@ int arm_branch(arm_core p, uint32_t ins) {
             break;
         case NE:
             result = get_bit(arm_read_cpsr(p), Z) == 0;
-            result = 0; //test vu qu'il y a pas de mises a jours des flags pour le moment
             break;
         case CS_HS:
             result = get_bit(arm_read_cpsr(p), C) == 1;
