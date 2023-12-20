@@ -54,26 +54,26 @@ static int arm_execute_instruction(arm_core p) {
     return -1;
 }
 
-int switch_type(arm_core p, uint32_t pc){
+int switch_type(arm_core p, uint32_t ins){
     int result;
     uint8_t type;
-    type = get_bits(pc, 27, 25);
+    type = get_bits(ins, 27, 25);
 
     switch (type){
         case 0x00: //INSTR de type add r4, r3
-            result = arm_data_processing_shift(p, pc);
+            result = arm_data_processing_shift(p, ins);
             break;
         case 0x01: //INSTR de type add r4, #5
-            result = arm_data_processing_immediate_msr(p, pc);
+            result = arm_data_processing_immediate_msr(p, ins);
             break;
         case 0x02: //INSTR de type ldr r4, [r2, #5]
-            result = arm_load_store(p, pc);
+            result = arm_load_store(p, ins);
             break;
         case 0x03: //INSTR de type ldr r4, [r2,r3]
-            result = arm_load_store_multiple(p, pc);
+            result = arm_load_store_multiple(p, ins);
             break;
         case 0x05: //INSTR de type BL etiq
-            result = arm_branch(p, pc);
+            result = arm_branch(p, ins);
             break;
         default: 
             result = -1; 
