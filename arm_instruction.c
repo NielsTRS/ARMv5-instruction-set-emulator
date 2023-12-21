@@ -75,7 +75,7 @@ int switch_type(arm_core p, uint32_t ins){
         case 0x02: //INSTR de type ldr r4, [r2, #5]
             result = arm_load_store(p, ins);
             break;
-        case 0x03: //INSTR de type ldr r4, [r2,r3]
+        case 0x04: //INSTR de type ldr r4, [r2,r3]
             result = arm_load_store_multiple(p, ins);
             break;
         case 0x05: //INSTR de type BL etiq
