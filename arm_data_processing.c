@@ -31,6 +31,7 @@ Contact: Guillaume.Huard@imag.fr
 int arm_data_processing_shift(arm_core p, uint32_t ins) {
     uint8_t opcode;
     uint32_t r1,r2;
+    uint8_t bit_miscellaneous = get_bit(ins, 20);
     long res;
 
     opcode = get_bits(ins, 24, 21);
@@ -84,8 +85,12 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             //update_flags(res);
             break;
         case CMN:
-            res = r1 + r2;
-            //update_flags(res);
+            if(bit_miscellaneous == 0x01){
+                arm_miscellaneous(p, ins);
+            } else {
+                res = r1 + r2;
+                //update_flags(res);
+            }
             break;
         case ORR:
             res = r1 | r2;
