@@ -44,7 +44,7 @@ static int arm_execute_instruction(arm_core p) {
     } else if (exec == 0){
         result = arm_branch(p, ins, 0);
     } else {
-        result = arm_miscellaneous(p, ins);
+        result = -1;
     }
 
     return result;
