@@ -62,5 +62,6 @@ int arm_coprocessor_others_swi(arm_core p, uint32_t ins) {
 }
 
 int arm_miscellaneous(arm_core p, uint32_t ins) {
+    // CLZ instruction
     return UNDEFINED_INSTRUCTION;
 }

@@ -33,10 +33,10 @@ Contact: Guillaume.Huard@imag.fr
 #define ADC 0x05
 #define SBC 0x06
 #define RSC 0x07
-#define TST 0x08
+#define TST_MRS 0x08
 #define TEQ 0x09
-#define CMP 0x0A
-#define CMN 0x0B
+#define CMP_MRS 0x0A
+#define CMN_MISC 0x0B
 #define ORR 0x0C
 #define MOV 0x0D
 #define BIC 0x0E

@@ -31,7 +31,7 @@ Contact: Guillaume.Huard@imag.fr
 int arm_data_processing_shift(arm_core p, uint32_t ins) {
     uint8_t opcode;
     uint32_t r1,r2;
-    uint8_t bit_miscellaneous = get_bit(ins, 20);
+    uint8_t bit_id = get_bit(ins, 20);
     long res;
 
     opcode = get_bits(ins, 24, 21);
@@ -72,24 +72,36 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             res = r2 - r1 - ~get_bit(arm_read_cpsr(p), C);
             arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)res);
             break;
-        case TST: 
-            res = r1 & r2;
-            //update_flags(res);
+        case TST_MRS:
+            if(bit_id == 0x01){ // MRS
+                if(bit_id == 0x01){
+                    arm_write_register(p, get_bits(ins, 15, 12), arm_read_spsr(p));
+                } else {
+                    arm_write_register(p, get_bits(ins, 15, 12), arm_read_cpsr(p));
+                }
+            } else {
+                res = r1 & r2;
+            }
             break;
         case TEQ:
             res = r1 ^ r2;
-            //update_flags(res);
             break;
-        case CMP:
-            res = r1 - r2;
-            //update_flags(res);
+        case CMP_MRS:
+            if(bit_id == 0x01){ // MRS
+                if(bit_id == 0x01){
+                    arm_write_register(p, get_bits(ins, 15, 12), arm_read_spsr(p));
+                } else {
+                    arm_write_register(p, get_bits(ins, 15, 12), arm_read_cpsr(p));
+                }
+            } else {
+                res = r1 - r2;
+            }
             break;
-        case CMN:
-            if(bit_miscellaneous == 0x01){
+        case CMN_MISC:
+            if(bit_id == 0x01){ // miscellaneous instruction
                 arm_miscellaneous(p, ins);
             } else {
                 res = r1 + r2;
-                //update_flags(res);
             }
             break;
         case ORR:
@@ -160,21 +172,20 @@ int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
             res = v1 - r1 - ~get_bit(arm_read_cpsr(p), C);
             arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)res);
             break;
-        case TST: 
+        case TST_MRS:
             res = r1 & v1;
-            //update_flags(res);
+            // pas besoin de gérer MRS ici
             break;
         case TEQ:
             res = r1 ^ v1;
-            //update_flags(res);
             break;
-        case CMP:
+        case CMP_MRS:
             res = r1 - v1;
-            //update_flags(res);
+            // pas besoin de gérer miscellaneous ici
             break;
-        case CMN:
+        case CMN_MISC:
             res = r1 + v1;
-            //update_flags(res);
+            // pas besoin de gérer MRS ici
             break;
         case ORR:
             res = r1 | v1;
