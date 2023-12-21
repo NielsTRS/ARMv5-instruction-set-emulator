@@ -63,5 +63,19 @@ int arm_coprocessor_others_swi(arm_core p, uint32_t ins) {
 
 int arm_miscellaneous(arm_core p, uint32_t ins) {
     // CLZ instruction
-    return UNDEFINED_INSTRUCTION;
+    uint8_t rd = get_bits(ins, 15, 12);
+    uint8_t rm = get_bits(ins, 7, 4);
+    int position = 0;
+
+    if(rm == 0x00){
+        arm_write_register(p, rd, 32);
+    } else {
+        for(int i = 0; i < 4; i++){ // il suffit de parcourir que les 4 bits les plus a droites car les 4 autres sont à 0
+            if(get_bit(rm, i) == 1){
+                position = i + 1; // a voir s'il faut mettre +1 ou non
+            }
+        }
+        arm_write_register(p, rd, 31 - position);
+    }
+    return 0;
 }

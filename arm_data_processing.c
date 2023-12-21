@@ -99,7 +99,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             break;
         case CMN_MISC:
             if(bit_id == 0x01){ // miscellaneous instruction
-                arm_miscellaneous(p, ins);
+                return arm_miscellaneous(p, ins);
             } else {
                 res = r1 + r2;
             }
