@@ -36,7 +36,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     opcode = get_bits(ins, 24, 21);
 
     r1 = arm_read_register(p, get_bits(ins, 19, 16));
-    r2 = arm_read_register(p, get_bits(ins, 4, 0));
+    r2 = arm_read_register(p, get_bits(ins, 3, 0));
 
     switch(opcode){
         case AND:
