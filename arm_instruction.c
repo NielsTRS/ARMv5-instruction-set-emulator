@@ -81,7 +81,7 @@ int switch_type(arm_core p, uint32_t ins){
         case 0x05: //INSTR de type BL etiq
             result = arm_branch(p, ins, 1);
             break;
-        case 0x07: //INSTR de type swi
+        case 0x07:  //INSTR de type swi
             result = arm_coprocessor_others_swi(p, ins);
             break;
         default: 
