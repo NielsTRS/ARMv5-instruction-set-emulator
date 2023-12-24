@@ -25,7 +25,7 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdint.h>
 #include "arm_core.h"
 
-int arm_branch(arm_core p, uint32_t ins, int exec);
+int arm_branch(arm_core p, uint32_t ins);
 int arm_coprocessor_others_swi(arm_core p, uint32_t ins);
 int arm_miscellaneous(arm_core p, uint32_t ins);
 

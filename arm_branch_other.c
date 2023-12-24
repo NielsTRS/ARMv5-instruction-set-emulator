@@ -26,32 +26,25 @@ Contact: Guillaume.Huard@imag.fr
 #include <debug.h>
 #include <stdlib.h>
 
-int arm_branch(arm_core p, uint32_t ins, int exec) {
+int arm_branch(arm_core p, uint32_t ins) {
     uint8_t l_bit = get_bit(ins, 24);
     uint8_t a_bit = get_bit(ins, 23);
     uint32_t pc = arm_read_register(p, 15);
     uint32_t address;
 
-    if (exec == 1){ // Condition vrai
-        address = get_bits(ins, 23, 0);
-        if(a_bit == 0x01){ // bit 23 à 1 (nombre négatif)
-            // insérer 6 bits vallant 1 gauche
-            address |= 0x3F000000;
-        }
-        address <<= 2;
-        address += pc;
-
-        if(l_bit == 0x01){ // L = 1
-            arm_write_register(p, 14, pc - 4); // R14 / LR
-        }
-        arm_write_register(p, 15, address); // R15 / PC
-        return 0;
-    } else if (exec == 0){ // Condition Fausse
-        arm_write_register(p, 15, pc-4);
-        return 0;
-    } else {
-        return -1;
+    address = get_bits(ins, 23, 0);
+    if(a_bit == 0x01){ // bit 23 à 1 (nombre négatif)
+        // insérer 6 bits vallant 1 gauche
+        address |= 0x3F000000;
     }
+    address <<= 2;
+    address += pc;
+
+    if(l_bit == 0x01){ // L = 1
+        arm_write_register(p, 14, pc - 4); // R14 / LR
+    }
+    arm_write_register(p, 15, address); // R15 / PC
+    return 0;
 }
 
 int arm_coprocessor_others_swi(arm_core p, uint32_t ins) {

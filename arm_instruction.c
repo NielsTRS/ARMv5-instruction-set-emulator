@@ -41,8 +41,6 @@ static int arm_execute_instruction(arm_core p) {
     exec = check_flags(p, ins);
     if(exec == 1){
         result = switch_type(p, ins);
-    } else if (exec == 0){
-        result = arm_branch(p, ins, 0);
     } else {
         result = -1;
     }
@@ -79,7 +77,7 @@ int switch_type(arm_core p, uint32_t ins){
             result = arm_load_store_multiple(p, ins);
             break;
         case 0x05: //INSTR de type BL etiq
-            result = arm_branch(p, ins, 1);
+            result = arm_branch(p, ins);
             break;
         case 0x07:  //INSTR de type swi
             result = arm_coprocessor_others_swi(p, ins);
