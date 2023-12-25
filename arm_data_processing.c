@@ -31,155 +31,96 @@ Contact: Guillaume.Huard@imag.fr
 int arm_data_processing_shift(arm_core p, uint32_t ins) {
     uint8_t opcode;
     uint32_t r1,r2;
-    uint8_t bit_id = get_bit(ins, 20);
-    uint8_t bit_r = get_bit(ins, 22);
-    long res;
 
     opcode = get_bits(ins, 24, 21);
 
     r1 = arm_read_register(p, get_bits(ins, 19, 16));
     r2 = arm_read_register(p, get_bits(ins, 3, 0));
 
-    switch(opcode){
-        case AND:
-            res = r1 & r2;
-            break;
-        case EOR:
-            res = r1 ^ r2;
-            break;
-        case SUB:
-            res = r1 - r2;
-            break;
-        case RSB:
-            res = r2 - r1;
-            break;
-        case ADD:
-            res = r1 + r2;
-            break;
-        case ADC:
-            res = r1 + r2 + get_bit(arm_read_cpsr(p), C);
-            break;
-        case SBC:
-            res = r1 - r2 - ~get_bit(arm_read_cpsr(p), C);
-            break;
-        case RSC:
-            res = r2 - r1 - ~get_bit(arm_read_cpsr(p), C);
-            break;
-        case TST_MRS:
-            if(bit_id == 0x01){ // MRS
-                if(bit_r == 0x01){
-                    res = arm_read_spsr(p);
-                } else {
-                    res = arm_read_cpsr(p);
-                }
-            } else {
-                res = r1 & r2;
-            }
-            break;
-        case TEQ:
-            res = r1 ^ r2;
-            break;
-        case CMP_MRS:
-            if(bit_id == 0x01){ // MRS
-                if(bit_r == 0x01){
-                    res = arm_read_spsr(p);
-                } else {
-                    res = arm_read_cpsr(p);
-                }
-            } else {
-                res = r1 - r2;
-            }
-            break;
-        case CMN_MISC:
-            if(bit_id == 0x01){ // miscellaneous instruction
-                return arm_miscellaneous(p, ins);
-            } else {
-                res = r1 + r2;
-            }
-            break;
-        case ORR:
-            res = r1 | r2;
-            break;
-        case MOV:
-            res = r2;
-            break;
-        case BIC:
-            res = r1 & ~(r2);
-            break;
-        case MVN:
-            res = ~(r2);
-            break;
-        default:
-            return -1;
-    }
-    arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)res);
-    if (get_bit(ins, 20) == 1){
-        update_flags(p, res);
-    }
-    return 0;
+    return arm_data_processing_operation(1, p, ins, opcode, r1, r2);
 }
 
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
     uint8_t opcode,v1;
     uint32_t r1;
-    long res;
 
     opcode = get_bits(ins, 24, 21);
 
     r1 = arm_read_register(p, get_bits(ins, 19, 16));
     v1 = get_bits(ins, 7, 0);
 
+    return arm_data_processing_operation(0, p, ins, opcode, r1, v1);
+}
+
+int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t opcode, uint32_t p1, uint8_t p2) {
+    long res;
+    uint8_t bit_id, bit_r;
+
+    if(shift){
+        bit_id = get_bit(ins, 20);
+        bit_r = get_bit(ins, 22);
+    }
+
     switch(opcode){
         case AND:
-            res = r1 & v1;
+            res = p1 & p2;
             break;
         case EOR:
-            res = r1 ^ v1;
+            res = p1 ^ p2;
             break;
         case SUB:
-            res = r1 - v1;
+            res = p1 - p2;
             break;
         case RSB:
-            res = v1 - r1;
+            res = p2 - p1;
             break;
         case ADD:
-            res = r1 + v1;
+            res = p1 + p2;
             break;
         case ADC:
-            res = r1 + v1 + get_bit(arm_read_cpsr(p), C);
+            res = p1 + p2 + get_bit(arm_read_cpsr(p), C);
             break;
         case SBC:
-            res = r1 - v1 - ~get_bit(arm_read_cpsr(p), C);
+            res = p1 - p2 - ~get_bit(arm_read_cpsr(p), C);
             break;
         case RSC:
-            res = v1 - r1 - ~get_bit(arm_read_cpsr(p), C);
+            res = p2 - p1 - ~get_bit(arm_read_cpsr(p), C);
             break;
         case TST_MRS:
-            res = r1 & v1;
-            // pas besoin de gérer MRS ici
+            if(shift && bit_id == 0x01){ // MRS
+                res = mrs_instruction(p, bit_r);
+            } else {
+                res = p1 & p2;
+            }
             break;
         case TEQ:
-            res = r1 ^ v1;
+            res = p1 ^ p2;
             break;
         case CMP_MRS:
-            res = r1 - v1;
-            // pas besoin de gérer miscellaneous ici
+            if(shift && bit_id == 0x01){ // MRS
+                res = mrs_instruction(p, bit_r);
+            } else {
+                res = p1 - p2;
+            }
             break;
         case CMN_MISC:
-            res = r1 + v1;
-            // pas besoin de gérer MRS ici
+            if(shift && bit_id == 0x01){ // miscellaneous instruction
+                return arm_miscellaneous(p, ins);
+            } else {
+                res = p1 + p2;
+            }
             break;
         case ORR:
-            res = r1 | v1;
+            res = p1 | p2;
             break;
         case MOV:
-            res = v1;
+            res = p2;
             break;
         case BIC:
-            res = r1 & ~(v1);
+            res = p1 & ~(p2);
             break;
         case MVN:
-            res = ~(v1);
+            res = ~(p2);
             break;
         default:
             return -1;
@@ -208,4 +149,15 @@ void update_flags(arm_core p, long res){
         cpsr = set_bit(cpsr, V);
     }
     arm_write_cpsr(p, cpsr);
+}
+
+long mrs_instruction(arm_core p, uint8_t bit_r){
+    long res;
+
+    if(bit_r == 0x01){
+        res = arm_read_spsr(p);
+    } else {
+        res = arm_read_cpsr(p);
+    }
+    return res;
 }
