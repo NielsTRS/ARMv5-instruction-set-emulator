@@ -32,6 +32,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     uint8_t opcode;
     uint32_t r1,r2;
     uint8_t bit_id = get_bit(ins, 20);
+    uint8_t bit_r = get_bit(ins, 22);
     long res;
 
     opcode = get_bits(ins, 24, 21);
@@ -66,7 +67,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             break;
         case TST_MRS:
             if(bit_id == 0x01){ // MRS
-                if(bit_id == 0x01){
+                if(bit_r == 0x01){
                     res = arm_read_spsr(p);
                 } else {
                     res = arm_read_cpsr(p);
@@ -80,7 +81,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
             break;
         case CMP_MRS:
             if(bit_id == 0x01){ // MRS
-                if(bit_id == 0x01){
+                if(bit_r == 0x01){
                     res = arm_read_spsr(p);
                 } else {
                     res = arm_read_cpsr(p);
