@@ -69,7 +69,7 @@ int arm_get_index (arm_core p, uint32_t ins, uint32_t *index) {
     return 0;
 }
 
-int arm_get_adress (arm_core p, uint32_t ins, uint32_t *adress) {
+int arm_get_address (arm_core p, uint32_t ins, uint32_t *address) {
     uint8_t i, pp, u, w;
     uint32_t rn, rm, offset, index;
 
@@ -83,7 +83,7 @@ int arm_get_adress (arm_core p, uint32_t ins, uint32_t *adress) {
 
     if (i == 0) { // Immediate offset/index
         if (pp == 0) { // Immediate post-indexed
-            *adress = arm_read_register (p, rn);
+            *address = arm_read_register (p, rn);
             if (u == 1) {
                 arm_write_register (p, rn, arm_read_register (p, rn) + offset);
             } else {
@@ -92,23 +92,23 @@ int arm_get_adress (arm_core p, uint32_t ins, uint32_t *adress) {
         } else { // Immediate offset or Immediate pre-indexed
             if (w == 0) { // Immediate offset
                 if (u == 1) {
-                    *adress = arm_read_register (p, rn) + offset;
+                    *address = arm_read_register (p, rn) + offset;
                 } else {
-                    *adress = arm_read_register (p, rn) - offset;
+                    *address = arm_read_register (p, rn) - offset;
                 }
             } else { // Immediate pre-indexed
                 if (u == 1) {
-                    *adress = arm_read_register (p, rn) + offset;
+                    *address = arm_read_register (p, rn) + offset;
                 } else {
-                    *adress = arm_read_register (p, rn) - offset;
+                    *address = arm_read_register (p, rn) - offset;
                 }
-                arm_write_register (p, rn, *adress);
+                arm_write_register (p, rn, *address);
             }
         }
     } else { // Register offset/index OU Scaled register offset/index
         if (get_bits (ins, 11, 5) == 0) { // Register offset/index
             if (pp == 0) { // Register post-indexed
-                *adress = arm_read_register (p, rn);
+                *address = arm_read_register (p, rn);
                 if (u == 1) {
                     arm_write_register (p, rn, arm_read_register (p, rn) + arm_read_register (p, rm));
                 } else {
@@ -117,17 +117,17 @@ int arm_get_adress (arm_core p, uint32_t ins, uint32_t *adress) {
             } else { // Register offset OU Register pre-indexed
                 if (w == 0) { // Register offset
                     if (u == 1) {
-                        *adress = arm_read_register (p, rn) + arm_read_register (p, rm);
+                        *address = arm_read_register (p, rn) + arm_read_register (p, rm);
                     } else {
-                        *adress = arm_read_register (p, rn) - arm_read_register (p, rm);
+                        *address = arm_read_register (p, rn) - arm_read_register (p, rm);
                     }
                 } else { // Register pre-indexed
                     if (u == 1) {
-                        *adress = arm_read_register (p, rn) + arm_read_register (p, rm);
+                        *address = arm_read_register (p, rn) + arm_read_register (p, rm);
                     } else {
-                        *adress = arm_read_register (p, rn) - arm_read_register (p, rm);
+                        *address = arm_read_register (p, rn) - arm_read_register (p, rm);
                     }
-                    arm_write_register (p, rn, *adress);
+                    arm_write_register (p, rn, *address);
                 }
             }
         } else { // Scaled register offset/index
@@ -142,18 +142,18 @@ int arm_get_adress (arm_core p, uint32_t ins, uint32_t *adress) {
                 if (w == 0) { // Scaled register offset
                     arm_get_index (p, ins, &index);
                     if (u == 1) {
-                        *adress = arm_read_register (p, rn) + index;
+                        *address = arm_read_register (p, rn) + index;
                     } else {
-                        *adress = arm_read_register (p, rn) - index;
+                        *address = arm_read_register (p, rn) - index;
                     }
                 } else { // Scaled register pre-indexed
                     arm_get_index (p, ins, &index);
                     if (u == 1) {
-                        *adress = arm_read_register (p, rn) + index;
+                        *address = arm_read_register (p, rn) + index;
                     } else {
-                        *adress = arm_read_register (p, rn) - index;
+                        *address = arm_read_register (p, rn) - index;
                     }
-                    arm_write_register (p, rn, *adress);
+                    arm_write_register (p, rn, *address);
                 }
             }
         }
@@ -161,10 +161,10 @@ int arm_get_adress (arm_core p, uint32_t ins, uint32_t *adress) {
     return 0; 
 }
 
-int arm_ldr (arm_core p, uint32_t ins, uint32_t adress) {
+int arm_ldr (arm_core p, uint32_t ins, uint32_t address) {
     uint32_t data;
 
-    arm_read_word(p, adress, &data);
+    arm_read_word(p, address, &data);
     if (get_bits (ins, 15, 12) == 0x0F) {
         arm_write_register (p, 15, data & 0xFFFFFFFE);
         arm_write_cpsr (p, (arm_read_cpsr(p) & ~(1 << 5)) | ((data & 1) << 5));
@@ -174,29 +174,29 @@ int arm_ldr (arm_core p, uint32_t ins, uint32_t adress) {
     return 0;
 }
 
-int arm_str(arm_core p, uint32_t ins, uint32_t adress) {
-    arm_write_word(p, adress, arm_read_register(p, get_bits(ins, 15, 12)));
+int arm_str(arm_core p, uint32_t ins, uint32_t address) {
+    arm_write_word(p, address, arm_read_register(p, get_bits(ins, 15, 12)));
     return 0;
 }
 
-int arm_ldrb(arm_core p, uint32_t ins, uint32_t adress) {
+int arm_ldrb(arm_core p, uint32_t ins, uint32_t address) {
     uint8_t data;
 
-    arm_read_byte(p, adress, &data);
+    arm_read_byte(p, address, &data);
     arm_write_register (p, get_bits (ins, 15, 12), (uint32_t)data);
     return 0;
 }
 
-int arm_strb(arm_core p, uint32_t ins, uint32_t adress) {
-    arm_write_byte(p, adress, arm_read_register(p, get_bits(ins, 15, 12)));
+int arm_strb(arm_core p, uint32_t ins, uint32_t address) {
+    arm_write_byte(p, address, arm_read_register(p, get_bits(ins, 15, 12)));
     return 0;
 }
 
-int arm_ldrh(arm_core p, uint32_t ins, uint32_t adress) {
+int arm_ldrh(arm_core p, uint32_t ins, uint32_t address) {
     uint16_t data;
 
-    if ((adress & 1) == 0) {
-        arm_read_half (p, adress, &data);
+    if ((address & 1) == 0) {
+        arm_read_half (p, address, &data);
     } else {
         return DATA_ABORT;
     }
@@ -204,9 +204,9 @@ int arm_ldrh(arm_core p, uint32_t ins, uint32_t adress) {
     return 0;
 }
 
-int arm_strh(arm_core p, uint32_t ins, uint32_t adress) {
-    if ((adress & 1) == 0) {
-        arm_write_half (p, adress, arm_read_register(p, get_bits(ins, 15, 12)));
+int arm_strh(arm_core p, uint32_t ins, uint32_t address) {
+    if ((address & 1) == 0) {
+        arm_write_half (p, address, arm_read_register(p, get_bits(ins, 15, 12)));
     } else {
         return DATA_ABORT;
     }
@@ -216,35 +216,35 @@ int arm_strh(arm_core p, uint32_t ins, uint32_t adress) {
 int arm_load_store(arm_core p, uint32_t ins) {
 
     uint8_t opcode, l, b;
-    uint32_t adress;
+    uint32_t address;
 
     opcode = get_bit(ins, 26); //bit qui indique si c'est un mot de 32/8 bits ou 16 bits
     l = get_bit(ins, 20); //L
     b = get_bit(ins, 22); //B
-    arm_get_adress(p, ins, &adress);
+    arm_get_address(p, ins, &address);
 
     switch (opcode) { 
         case 0x01: //32 ou 8 bits
             if (b == 0x00) { //32 bits
                 if (l == 0x01) { //load
-                    return arm_ldr(p, ins, adress); //TEST
+                    return arm_ldr(p, ins, address); //TEST
                 } else { //store
-                    return arm_str(p, ins, adress); //TEST
+                    return arm_str(p, ins, address); //TEST
                 }
             } else { //8 bits
                 if (l == 0x01) { //load
-                    return arm_ldrb(p, ins, adress); //TEST
+                    return arm_ldrb(p, ins, address); //TEST
                 } else { //store
-                    return arm_strb(p, ins, adress); //TEST
+                    return arm_strb(p, ins, address); //TEST
                 }
             }
             break;
 
-        case 0X00: //16 bits
+        case 0x00: //16 bits
             if (l == 0x01) { //load
-                return arm_ldrh(p, ins, adress); //TEST
+                return arm_ldrh(p, ins, address); //TEST
             } else { //store
-                return arm_strh(p, ins, adress); //TEST
+                return arm_strh(p, ins, address); //TEST
             }
             break;
 
