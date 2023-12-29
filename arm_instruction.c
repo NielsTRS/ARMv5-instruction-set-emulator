@@ -42,7 +42,7 @@ static int arm_execute_instruction(arm_core p) {
     if(exec){
         result = switch_type(p, ins);
     } else {
-        result = -1;
+        result = 0;
     }
 
     return result;

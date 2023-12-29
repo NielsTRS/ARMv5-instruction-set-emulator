@@ -30,20 +30,19 @@ int arm_branch(arm_core p, uint32_t ins) {
     uint8_t l_bit = get_bit(ins, 24);
     uint8_t a_bit = get_bit(ins, 23);
     uint32_t pc = arm_read_register(p, 15);
-    uint32_t address;
+    uint32_t address = get_bits(ins, 23, 0);
 
-    address = get_bits(ins, 23, 0);
+    if(l_bit == 0x01){ // L = 1
+        arm_write_register(p, 14, pc - 4); // R14 / LR
+    }
+
     if(a_bit == 0x01){ // bit 23 à 1 (nombre négatif)
         // insérer 6 bits vallant 1 gauche
         address |= 0x3F000000;
     }
     address <<= 2;
-    address += pc;
 
-    if(l_bit == 0x01){ // L = 1
-        arm_write_register(p, 14, pc - 4); // R14 / LR
-    }
-    arm_write_register(p, 15, address); // R15 / PC
+    arm_write_register(p, 15, pc + address); // R15 / PC
     return 0;
 }
 
