@@ -34,8 +34,8 @@ unsigned int rotateRight(unsigned int valeur, int positions) {
 }
 
 int arm_get_index (arm_core p, uint32_t ins, uint32_t *index) {
-    uint32_t shift, rm, shift_imm;
-    
+    uint8_t shift, rm, shift_imm;
+
     rm = get_bits (ins, 3, 0);
     shift = get_bits (ins, 6, 5);
     shift_imm = get_bits (ins, 11, 7);
@@ -70,8 +70,9 @@ int arm_get_index (arm_core p, uint32_t ins, uint32_t *index) {
 }
 
 int arm_get_address (arm_core p, uint32_t ins, uint32_t *address) {
-    uint8_t i, pp, u, w;
-    uint32_t rn, rm, offset, index;
+    uint8_t i, pp, u, w, rn, rm;
+    uint16_t offset;
+    uint32_t index;
 
     i = get_bit (ins, 25);
     pp = get_bit (ins, 24);
@@ -158,7 +159,7 @@ int arm_get_address (arm_core p, uint32_t ins, uint32_t *address) {
             }
         }
     }
-    return 0; 
+    return 0;
 }
 
 int arm_ldr (arm_core p, uint32_t ins, uint32_t address) {
@@ -223,7 +224,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
     b = get_bit(ins, 22); //B
     arm_get_address(p, ins, &address);
 
-    switch (opcode) { 
+    switch (opcode) {
         case 0x01: //32 ou 8 bits
             if (b == 0x00) { //32 bits
                 if (l == 0x01) { //load
