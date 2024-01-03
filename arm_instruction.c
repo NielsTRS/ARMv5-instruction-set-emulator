@@ -70,8 +70,8 @@ int switch_type(arm_core p, uint32_t ins){
         case 0x01: //INSTR de type add r4, #5
             result = arm_data_processing_immediate_msr(p, ins);
             break;
-        case 0x02: //INSTR de type ldr r4, [r2, #5]
-        case 0x03: 
+        case 0x02: //INSTR de type ldr r4, #5
+        case 0x03: //INSTR de type ldr r4, [r5]
             result = arm_load_store(p, ins);
             break;
         case 0x04: //INSTR de type ldr r4, [r2,r3]

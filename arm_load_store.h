@@ -39,5 +39,9 @@ int arm_strb(arm_core p, uint32_t ins, uint32_t adress);
 int arm_ldrh(arm_core p, uint32_t ins, uint32_t adress);
 int arm_strh(arm_core p, uint32_t ins, uint32_t adress);
 
+int Number_Of_Set_Bits_In (uint16_t register_list);
+int arm_get_start_end_address (arm_core p, uint32_t ins, uint32_t *start_address, uint32_t *end_address);
+int arm_ldm (arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address);
+int arm_stm (arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address);
 
 #endif

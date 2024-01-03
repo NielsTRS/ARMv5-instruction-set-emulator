@@ -25,6 +25,7 @@ Contact: Guillaume.Huard@imag.fr
 #include "arm_constants.h"
 #include "util.h"
 #include "debug.h"
+#include <assert.h>
 
 unsigned int rotateRight(unsigned int valeur, int positions) {
     int taille = sizeof(unsigned int) * 8;  // Taille en bits
@@ -228,13 +229,13 @@ int arm_load_store(arm_core p, uint32_t ins) {
         case 0x01: //32 ou 8 bits
             if (b == 0x00) { //32 bits
                 if (l == 0x01) { //load
-                    return arm_ldr(p, ins, address); //TEST
+                    return arm_ldr(p, ins, address);
                 } else { //store
                     return arm_str(p, ins, address); //TEST
                 }
             } else { //8 bits
                 if (l == 0x01) { //load
-                    return arm_ldrb(p, ins, address); //TEST
+                    return arm_ldrb(p, ins, address);
                 } else { //store
                     return arm_strb(p, ins, address); //TEST
                 }
@@ -243,7 +244,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
 
         case 0x00: //16 bits
             if (l == 0x01) { //load
-                return arm_ldrh(p, ins, address); //TEST
+                return arm_ldrh(p, ins, address);
             } else { //store
                 return arm_strh(p, ins, address); //TEST
             }
@@ -256,8 +257,116 @@ int arm_load_store(arm_core p, uint32_t ins) {
     return 0;
 }
 
+int Number_Of_Set_Bits_In (uint16_t register_list) { // Compter le nombre de 1 dans un nombre en binaire
+    int count = 0;
+
+    while (register_list != 0) {
+        count =  count + (register_list & 1);
+        register_list = register_list >> 1;
+    }
+
+    return count;
+}
+
+int arm_get_start_end_address (arm_core p, uint32_t ins, uint32_t *start_address, uint32_t *end_address) {
+    uint8_t opcode, rn, w;
+    uint16_t register_list;
+
+    opcode = get_bits (ins, 24, 23);
+    register_list = get_bits (ins, 15, 0);
+    w = get_bit (ins, 21);
+    rn = get_bits (ins, 19, 16);
+
+    switch (opcode) {
+        case 0x00: // Decrement after
+            *start_address = arm_read_register(p, rn) - (Number_Of_Set_Bits_In(register_list) * 4) + 4;
+            *end_address = arm_read_register(p, rn);
+            if (w == 1) {
+                arm_write_register (p, rn, arm_read_register(p, rn) - (Number_Of_Set_Bits_In(register_list) * 4) );
+            }
+            break;
+        case 0x01: // Increment after
+            *start_address = arm_read_register(p, rn);
+            *end_address = arm_read_register(p, rn) + (Number_Of_Set_Bits_In(register_list) * 4) - 4;
+            if (w == 1) {
+                arm_write_register (p, rn, arm_read_register(p, rn) + (Number_Of_Set_Bits_In(register_list) * 4) );
+            }
+            break;
+        case 0x02: // Decrement before
+            *start_address = arm_read_register(p, rn) - (Number_Of_Set_Bits_In(register_list) * 4);
+            *end_address = arm_read_register(p, rn) - 4;
+            if (w == 1) {
+                arm_write_register (p, rn, arm_read_register(p, rn) - (Number_Of_Set_Bits_In(register_list) * 4) );
+            }
+            break;
+        case 0x03: // Increment before
+            *start_address = arm_read_register(p, rn) + 4;
+            *end_address = arm_read_register(p, rn) + (Number_Of_Set_Bits_In(register_list) * 4);
+            if (w == 1) {
+                arm_write_register (p, rn, arm_read_register(p, rn) + (Number_Of_Set_Bits_In(register_list) * 4) );
+            }
+            break;
+    }
+    return 0;
+}
+
+
+int arm_ldm (arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address) {
+    uint32_t address, ri, value;
+    uint16_t register_list;
+
+    register_list = get_bits (ins, 15, 0);
+    address = start_address;
+
+    for (int i = 0; i <= 14; i++) {
+        if ( ((register_list >> i) & 1) == 1 ) {
+            arm_read_word(p, address, &ri);
+            arm_write_register (p, i, ri);
+            address = address + 4;
+        }
+    }
+    if ( ((register_list >> 15) & 1) == 1 ) {
+        arm_read_word(p, address, &value);
+        arm_write_register (p, 15, value & 0xFFFFFFFE);
+        arm_write_cpsr (p, (arm_read_cpsr(p) & ~(1 << 5)) | ((value & 1) << 5));
+        address = address + 4;
+    }
+    assert (end_address == address - 4);
+    return 0;
+}
+
+int arm_stm (arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address) {
+    uint32_t address;
+    uint16_t register_list;
+
+    register_list = get_bits (ins, 15, 0);
+    address = start_address;
+
+    for (int i = 0; i <= 15; i++) {
+        if ( ((register_list >> i) & 1) == 1 ) {
+            arm_write_word(p, address, arm_read_register(p, i));
+            address = address + 4;
+        }
+    }
+    assert (end_address == address - 4);
+    return 0;
+}
+
 int arm_load_store_multiple(arm_core p, uint32_t ins) {
-    return UNDEFINED_INSTRUCTION;
+    uint8_t l;
+    uint32_t start_address, end_address;
+
+    l = get_bit (ins, 20); //L
+    arm_get_start_end_address (p, ins, &start_address, &end_address);
+
+    switch (l) {
+        case 0x01: //load multiple
+            return arm_ldm (p, ins, start_address, end_address); //TEST
+        case 0x00: //store multiple
+            return arm_stm (p, ins, start_address, end_address); //TEST
+        default:
+            return UNDEFINED_INSTRUCTION;
+    }
 }
 
 int arm_coprocessor_load_store(arm_core p, uint32_t ins) {
