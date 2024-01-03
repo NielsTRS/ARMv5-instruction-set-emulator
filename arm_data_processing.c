@@ -54,7 +54,7 @@ int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
 
 int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t opcode, uint32_t p1, uint8_t p2) {
     long res;
-    uint8_t bit_id, bit_r;
+    uint8_t bit_id, bit_r, rd = get_bits(ins, 15, 12);
 
     if(shift){
         bit_id = get_bit(ins, 20);
@@ -125,9 +125,18 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
         default:
             return -1;
     }
-    arm_write_register(p, get_bits(ins, 15, 12), (uint32_t)res);
+    arm_write_register(p, rd, (uint32_t)res);
     if (get_bit(ins, 20) == 0x01){
-        update_flags(p, res);
+        if (rd == 0x0F){ // rd = 15
+            if(arm_current_mode_has_spsr(p)){
+                arm_write_cpsr(p, arm_read_spsr(p));
+            } else {
+                // Unpredictable
+                return -1;
+            }
+        } else {
+            update_flags(p, res);
+        }
     }
     return 0;
 }
