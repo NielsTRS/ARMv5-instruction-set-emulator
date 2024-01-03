@@ -32,16 +32,16 @@ int arm_coprocessor_load_store(arm_core p, uint32_t ins);
 unsigned int rotateRight(unsigned int valeur, int positions);
 int arm_get_index (arm_core p, uint32_t ins, uint32_t *index);
 int arm_get_address (arm_core p, uint32_t ins, uint32_t *address);
-int arm_ldr (arm_core p, uint32_t ins, uint32_t adress);
+int arm_ldr(arm_core p, uint32_t ins, uint32_t adress);
 int arm_str(arm_core p, uint32_t ins, uint32_t adress);
 int arm_ldrb(arm_core p, uint32_t ins, uint32_t adress);
 int arm_strb(arm_core p, uint32_t ins, uint32_t adress);
 int arm_ldrh(arm_core p, uint32_t ins, uint32_t adress);
 int arm_strh(arm_core p, uint32_t ins, uint32_t adress);
 
-int Number_Of_Set_Bits_In (uint16_t register_list);
-int arm_get_start_end_address (arm_core p, uint32_t ins, uint32_t *start_address, uint32_t *end_address);
-int arm_ldm (arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address);
-int arm_stm (arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address);
+int count_nb_set(uint16_t register_list);
+int arm_get_start_end_address(arm_core p, uint32_t ins, uint32_t *start_address, uint32_t *end_address);
+int arm_ldm(arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address);
+int arm_stm(arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address);
 
 #endif

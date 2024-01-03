@@ -34,7 +34,7 @@ unsigned int rotateRight(unsigned int valeur, int positions) {
     return (valeur >> positions) | (valeur << (taille - positions));
 }
 
-int arm_get_index (arm_core p, uint32_t ins, uint32_t *index) {
+int arm_get_index(arm_core p, uint32_t ins, uint32_t *index) {
     uint8_t shift, rm, shift_imm;
 
     rm = get_bits (ins, 3, 0);
@@ -257,7 +257,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
     return 0;
 }
 
-int Number_Of_Set_Bits_In (uint16_t register_list) { // Compter le nombre de 1 dans un nombre en binaire
+int count_nb_set(uint16_t register_list) { // Compter le nombre de 1 dans un nombre en binaire
     int count = 0;
 
     while (register_list != 0) {
@@ -268,7 +268,7 @@ int Number_Of_Set_Bits_In (uint16_t register_list) { // Compter le nombre de 1 d
     return count;
 }
 
-int arm_get_start_end_address (arm_core p, uint32_t ins, uint32_t *start_address, uint32_t *end_address) {
+int arm_get_start_end_address(arm_core p, uint32_t ins, uint32_t *start_address, uint32_t *end_address) {
     uint8_t opcode, rn, w;
     uint16_t register_list;
 
@@ -279,31 +279,31 @@ int arm_get_start_end_address (arm_core p, uint32_t ins, uint32_t *start_address
 
     switch (opcode) {
         case 0x00: // Decrement after
-            *start_address = arm_read_register(p, rn) - (Number_Of_Set_Bits_In(register_list) * 4) + 4;
+            *start_address = arm_read_register(p, rn) - (count_nb_set(register_list) * 4) + 4;
             *end_address = arm_read_register(p, rn);
             if (w == 1) {
-                arm_write_register (p, rn, arm_read_register(p, rn) - (Number_Of_Set_Bits_In(register_list) * 4) );
+                arm_write_register (p, rn, arm_read_register(p, rn) - (count_nb_set(register_list) * 4) );
             }
             break;
         case 0x01: // Increment after
             *start_address = arm_read_register(p, rn);
-            *end_address = arm_read_register(p, rn) + (Number_Of_Set_Bits_In(register_list) * 4) - 4;
+            *end_address = arm_read_register(p, rn) + (count_nb_set(register_list) * 4) - 4;
             if (w == 1) {
-                arm_write_register (p, rn, arm_read_register(p, rn) + (Number_Of_Set_Bits_In(register_list) * 4) );
+                arm_write_register (p, rn, arm_read_register(p, rn) + (count_nb_set(register_list) * 4) );
             }
             break;
         case 0x02: // Decrement before
-            *start_address = arm_read_register(p, rn) - (Number_Of_Set_Bits_In(register_list) * 4);
+            *start_address = arm_read_register(p, rn) - (count_nb_set(register_list) * 4);
             *end_address = arm_read_register(p, rn) - 4;
             if (w == 1) {
-                arm_write_register (p, rn, arm_read_register(p, rn) - (Number_Of_Set_Bits_In(register_list) * 4) );
+                arm_write_register (p, rn, arm_read_register(p, rn) - (count_nb_set(register_list) * 4) );
             }
             break;
         case 0x03: // Increment before
             *start_address = arm_read_register(p, rn) + 4;
-            *end_address = arm_read_register(p, rn) + (Number_Of_Set_Bits_In(register_list) * 4);
+            *end_address = arm_read_register(p, rn) + (count_nb_set(register_list) * 4);
             if (w == 1) {
-                arm_write_register (p, rn, arm_read_register(p, rn) + (Number_Of_Set_Bits_In(register_list) * 4) );
+                arm_write_register (p, rn, arm_read_register(p, rn) + (count_nb_set(register_list) * 4) );
             }
             break;
     }
@@ -311,7 +311,7 @@ int arm_get_start_end_address (arm_core p, uint32_t ins, uint32_t *start_address
 }
 
 
-int arm_ldm (arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address) {
+int arm_ldm(arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address) {
     uint32_t address, ri, value;
     uint16_t register_list;
 
@@ -335,7 +335,7 @@ int arm_ldm (arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_addr
     return 0;
 }
 
-int arm_stm (arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address) {
+int arm_stm(arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address) {
     uint32_t address;
     uint16_t register_list;
 
