@@ -60,8 +60,7 @@ int arm_step(arm_core p) {
 
 int switch_type(arm_core p, uint32_t ins){
     int result;
-    uint8_t type;
-    type = get_bits(ins, 27, 25);
+    uint8_t type = get_bits(ins, 27, 25);
 
     switch (type){
         case 0x00: //INSTR de type add r4, r3
@@ -80,6 +79,7 @@ int switch_type(arm_core p, uint32_t ins){
         case 0x05: //INSTR de type BL etiq
             result = arm_branch(p, ins);
             break;
+        case 0x06:
         case 0x07:  //INSTR de type swi
             result = arm_coprocessor_others_swi(p, ins);
             break;
