@@ -31,7 +31,8 @@ int arm_coprocessor_load_store(arm_core p, uint32_t ins);
 
 unsigned int rotateRight(unsigned int valeur, int positions);
 int arm_get_index (arm_core p, uint32_t ins, uint32_t *index);
-int arm_get_address (arm_core p, uint32_t ins, uint32_t *address);
+int arm_get_address_word_byte (arm_core p, uint32_t ins, uint32_t *address);
+int arm_get_address_half (arm_core p, uint32_t ins, uint32_t *address);
 int arm_ldr(arm_core p, uint32_t ins, uint32_t adress);
 int arm_str(arm_core p, uint32_t ins, uint32_t adress);
 int arm_ldrb(arm_core p, uint32_t ins, uint32_t adress);

@@ -63,14 +63,18 @@ int switch_type(arm_core p, uint32_t ins){
     uint8_t type = get_bits(ins, 27, 25);
 
     switch (type){
-        case 0x00: //INSTR de type add r4, r3
-            result = arm_data_processing_shift(p, ins);
+        case 0x00:
+            if (get_bit(ins, 7) == 0) { //INSTR de type add r4, r3
+                result = arm_data_processing_shift(p, ins);
+            } else { //INSTR de type ldrh r4, #5 ou ldrh r4, [r5]
+                result = arm_load_store(p, ins);
+            }
             break;
         case 0x01: //INSTR de type add r4, #5
             result = arm_data_processing_immediate_msr(p, ins);
             break;
-        case 0x02: //INSTR de type ldr r4, #5
-        case 0x03: //INSTR de type ldr r4, [r5]
+        case 0x02: //INSTR de type ldr(b) r4, #5
+        case 0x03: //INSTR de type ldr(b) r4, [r5]
             result = arm_load_store(p, ins);
             break;
         case 0x04: //INSTR de type ldr r4, [r2,r3]
