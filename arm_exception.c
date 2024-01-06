@@ -62,7 +62,7 @@ int arm_exception(arm_core p, uint8_t exception) {
     if (exception == UNDEFINED_INSTRUCTION ){
         arm_write_cpsr(p, cpsr);
         arm_write_register(p, 15, 4);
-    if (exception == )
+
     }
     return exception;
 }
