@@ -39,7 +39,7 @@ int arm_get_index(arm_core p, uint32_t ins, uint32_t *index) {
             *index = arm_read_register (p, rm) << shift_imm;
             break;
         case LSR:
-            if (shift_imm == 0) { // LSR #32 {
+            if (shift_imm == 0) { // LSR #32
                 *index = 0;
             } else {
                 *index = arm_read_register (p, rm) >> shift_imm;
@@ -291,13 +291,13 @@ int arm_load_store(arm_core p, uint32_t ins) {
                 if (l == 0x01) { //load
                     return arm_ldr(p, ins, address);
                 } else { //store
-                    return arm_str(p, ins, address); //TEST
+                    return arm_str(p, ins, address);
                 }
             } else { //8 bits
                 if (l == 0x01) { //load
                     return arm_ldrb(p, ins, address);
                 } else { //store
-                    return arm_strb(p, ins, address); //TEST
+                    return arm_strb(p, ins, address);
                 }
             }
             break;
@@ -307,7 +307,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
             if (l == 0x01) { //load
                 return arm_ldrh(p, ins, address);
             } else { //store
-                return arm_strh(p, ins, address); //TEST
+                return arm_strh(p, ins, address);
             }
             break;
 
@@ -421,9 +421,9 @@ int arm_load_store_multiple(arm_core p, uint32_t ins) {
 
     switch (l) {
         case 0x01: //load multiple
-            return arm_ldm (p, ins, start_address, end_address); //TEST
+            return arm_ldm (p, ins, start_address, end_address);
         case 0x00: //store multiple
-            return arm_stm (p, ins, start_address, end_address); //TEST
+            return arm_stm (p, ins, start_address, end_address);
         default:
             return UNDEFINED_INSTRUCTION;
     }
