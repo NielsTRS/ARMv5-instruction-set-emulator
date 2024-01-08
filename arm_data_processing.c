@@ -27,32 +27,84 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 #include "debug.h"
 
+int arm_shifter_op_data(arm_core p, uint32_t ins, uint32_t *index) {
+    uint8_t shift, rm, mode, rs, shift_imm;
+
+    rm = get_bits(ins, 3, 0);
+    mode = get_bit(ins, 4); //immediate or register
+    shift = get_bits(ins, 6, 5);
+    
+    if(mode){
+        rs = get_bits(ins, 11, 8);
+    }
+    else{
+        shift_imm = get_bits (ins, 11, 7); 
+    }
+
+    switch (shift) {
+        case LSL:
+            if(mode){
+                *index = arm_read_register (p, rm) << arm_read_register(p, rs);
+            }
+            else{
+                *index = arm_read_register (p, rm) << shift_imm;
+            }
+            break;
+        case LSR:
+            if(mode){
+                *index = arm_read_register (p, rm) >> arm_read_register(p, rs);
+            }
+            else{
+                *index = arm_read_register (p, rm) >> shift_imm;
+            }
+            break;
+        case ASR:
+            if(mode){
+                *index = asr(arm_read_register (p, rm), (uint8_t)arm_read_register(p, rs));
+            }
+            else{
+                *index = asr(arm_read_register (p, rm), shift_imm);
+            }
+            break;
+        case ROR:
+            if(mode){
+                *index = ror(arm_read_register (p, rm), (uint8_t)arm_read_register(p, rs));
+            }
+            else{
+                *index = ror(arm_read_register (p, rm), shift_imm);
+            }
+            break;
+    }
+    return 0;
+}
+
 /* Decoding functions for different classes of instructions */
 int arm_data_processing_shift(arm_core p, uint32_t ins) {
     uint8_t opcode;
-    uint32_t r1,r2;
+    uint32_t index, rn;
 
     opcode = get_bits(ins, 24, 21);
 
-    r1 = arm_read_register(p, get_bits(ins, 19, 16));
-    r2 = arm_read_register(p, get_bits(ins, 3, 0));
+    rn = arm_read_register(p, get_bits(ins, 19, 16));
 
-    return arm_data_processing_operation(1, p, ins, opcode, r1, r2);
+    arm_shifter_op_data(p, ins, &index); //shifter operand calc
+
+    return arm_data_processing_operation(1, p, ins, opcode, rn, index);
 }
 
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
-    uint8_t opcode,v1;
-    uint32_t r1;
+    uint8_t opcode, immed_8;
+    uint32_t rn;
 
     opcode = get_bits(ins, 24, 21);
 
-    r1 = arm_read_register(p, get_bits(ins, 19, 16));
-    v1 = get_bits(ins, 7, 0);
+    rn = arm_read_register(p, get_bits(ins, 19, 16));
+    immed_8 = get_bits(ins, 7, 0);
 
-    return arm_data_processing_operation(0, p, ins, opcode, r1, v1);
+    return arm_data_processing_operation(0, p, ins, opcode, rn, immed_8);
 }
 
-int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t opcode, uint32_t p1, uint8_t p2) {
+int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t opcode, uint32_t rn, uint32_t index) {
     long res;
     uint8_t bit_id, bit_r, rd = get_bits(ins, 15, 12);
 
@@ -63,64 +115,64 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
 
     switch(opcode){
         case AND:
-            res = p1 & p2;
+            res = rn & index;
             break;
         case EOR:
-            res = p1 ^ p2;
+            res = rn ^ index;
             break;
         case SUB:
-            res = p1 - p2;
+            res = rn - index;
             break;
         case RSB:
-            res = p2 - p1;
+            res = rn - index;
             break;
         case ADD:
-            res = p1 + p2;
+            res = rn + index;
             break;
         case ADC:
-            res = p1 + p2 + get_bit(arm_read_cpsr(p), C);
+            res = rn + index + get_bit(arm_read_cpsr(p), C);
             break;
         case SBC:
-            res = p1 - p2 - ~get_bit(arm_read_cpsr(p), C);
+            res = rn - index - ~get_bit(arm_read_cpsr(p), C);
             break;
         case RSC:
-            res = p2 - p1 - ~get_bit(arm_read_cpsr(p), C);
+            res = index - rn - ~get_bit(arm_read_cpsr(p), C);
             break;
         case TST_MRS:
             if(shift && bit_id == 0x01){ // MRS
                 res = mrs_instruction(p, bit_r);
             } else {
-                res = p1 & p2;
+                res = rn & index;
             }
             break;
         case TEQ:
-            res = p1 ^ p2;
+            res = rn ^ index;
             break;
         case CMP_MRS:
             if(shift && bit_id == 0x01){ // MRS
                 res = mrs_instruction(p, bit_r);
             } else {
-                res = p1 - p2;
+                res = rn - index;
             }
             break;
         case CMN_MISC:
             if(shift && bit_id == 0x01){ // miscellaneous instruction
                 return arm_miscellaneous(p, ins);
             } else {
-                res = p1 + p2;
+                res = rn + index;
             }
             break;
         case ORR:
-            res = p1 | p2;
+            res = rn | index;
             break;
         case MOV:
-            res = p2;
+            res = index;
             break;
         case BIC:
-            res = p1 & ~(p2);
+            res = rn & ~(index);
             break;
         case MVN:
-            res = ~(p2);
+            res = ~(index);
             break;
         default:
             return -1;

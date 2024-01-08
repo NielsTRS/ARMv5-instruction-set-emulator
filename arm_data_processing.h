@@ -25,9 +25,10 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdint.h>
 #include "arm_core.h"
 
+int arm_shifter_op_data(arm_core p, uint32_t ins, uint32_t *index);
 int arm_data_processing_shift(arm_core p, uint32_t ins);
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins);
-int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t opcode, uint32_t p1, uint8_t p2);
+int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t opcode, uint32_t rn, uint32_t index);
 void update_flags(arm_core p, long res);
 long mrs_instruction(arm_core p, uint8_t bit_r);
 
