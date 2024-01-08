@@ -138,7 +138,7 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
             res = index - rn - ~get_bit(arm_read_cpsr(p), C);
             break;
         case TST_MRS:
-            if(shift && bit_id == 0x01){ // MRS
+            if(shift && bit_id == 0x00){ // MRS
                 res = mrs_instruction(p, bit_r);
             } else {
                 res = rn & index;
@@ -150,8 +150,8 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
             res = rn ^ index;
             break;
         case CMP_MRS:
-            if(shift && bit_id == 0x01){ // MRS
-                res = mrs_instruction(p, bit_r);
+            if(shift && bit_id == 0x00){ // MRS
+                return mrs_instruction(p, bit_r);
             } else {
                 res = rn - index;
             }
