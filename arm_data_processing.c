@@ -143,6 +143,8 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
             } else {
                 res = rn & index;
             }
+            update_flags(p, res);
+            return 0;
             break;
         case TEQ:
             res = rn ^ index;
@@ -153,6 +155,8 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
             } else {
                 res = rn - index;
             }
+            update_flags(p, res);
+            return 0;
             break;
         case CMN_MISC:
             if(shift && bit_id == 0x01){ // miscellaneous instruction
@@ -160,6 +164,8 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
             } else {
                 res = rn + index;
             }
+            update_flags(p, res);
+            return 0;
             break;
         case ORR:
             res = rn | index;
