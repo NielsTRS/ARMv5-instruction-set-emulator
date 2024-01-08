@@ -27,13 +27,6 @@ Contact: Guillaume.Huard@imag.fr
 #include "debug.h"
 #include <assert.h>
 
-unsigned int rotateRight(unsigned int valeur, int positions) {
-    int taille = sizeof(unsigned int) * 8;  // Taille en bits
-    positions = positions % taille;  // Pour gérer les rotations de plus d'une taille de mot
-
-    return (valeur >> positions) | (valeur << (taille - positions));
-}
-
 int arm_get_index(arm_core p, uint32_t ins, uint32_t *index) {
     uint8_t shift, rm, shift_imm;
 
@@ -60,11 +53,11 @@ int arm_get_index(arm_core p, uint32_t ins, uint32_t *index) {
                     *index = 0;
                 }
             } else {
-                *index = arm_read_register (p, rm) >> shift_imm; // PAS SUR ICI !!!!!!!!!!!!!!!!!!!!!!!!!!! (faire un "arithmetic" shift right)
+                *index = asr(arm_read_register (p, rm), shift_imm);
             }
             break;
         case ROR:
-            *index = rotateRight (arm_read_register (p, rm), shift_imm);
+            *index = ror (arm_read_register (p, rm), shift_imm);
             break;
     }
     return 0;
@@ -377,7 +370,6 @@ int arm_get_start_end_address(arm_core p, uint32_t ins, uint32_t *start_address,
     }
     return 0;
 }
-
 
 int arm_ldm(arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_address) {
     uint32_t address, ri, value;
