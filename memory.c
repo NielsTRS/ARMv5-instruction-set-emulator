@@ -23,6 +23,7 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdlib.h>
 #include "memory.h"
 #include "util.h"
+#include "arm_constants.h"
 
 struct memory_data {
     size_t size;
@@ -54,7 +55,7 @@ int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
         *value = mem->data[address];
         return 0;
     }
-    return -1;
+    return DATA_ABORT;
 }
 
 int memory_read_half(memory mem, uint32_t address, uint16_t *value, uint8_t be) {
@@ -65,7 +66,7 @@ int memory_read_half(memory mem, uint32_t address, uint16_t *value, uint8_t be) 
         }
         return 0;
     }
-    return -1;
+    return DATA_ABORT;
 }
 
 int memory_read_word(memory mem, uint32_t address, uint32_t *value, uint8_t be) {
@@ -76,7 +77,7 @@ int memory_read_word(memory mem, uint32_t address, uint32_t *value, uint8_t be) 
         }
         return 0;
     }
-    return -1;
+    return DATA_ABORT;
 }
 
 int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
@@ -84,7 +85,7 @@ int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
         *(mem->data + address) = value;
         return 0;
     }
-    return -1;
+    return DATA_ABORT;
 }
 
 int memory_write_half(memory mem, uint32_t address, uint16_t value, uint8_t be) {
@@ -96,7 +97,7 @@ int memory_write_half(memory mem, uint32_t address, uint16_t value, uint8_t be) 
         mem->data[address+1] = (uint8_t)(value >> 8);
         return 0;
     }
-    return -1;
+    return DATA_ABORT;
 }
 
 int memory_write_word(memory mem, uint32_t address, uint32_t value, uint8_t be) {
@@ -110,5 +111,5 @@ int memory_write_word(memory mem, uint32_t address, uint32_t value, uint8_t be) 
         mem->data[address+3] = (uint8_t)(value >> 24);
         return 0;
     }
-    return -1;
+    return DATA_ABORT;
 }

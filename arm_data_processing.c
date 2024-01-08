@@ -27,7 +27,7 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 #include "debug.h"
 
-int arm_shifter_op_data(arm_core p, uint32_t ins, uint32_t *index) {
+void arm_shifter_op_data(arm_core p, uint32_t ins, uint32_t *index) {
     uint8_t shift, rm, mode, rs, shift_imm;
 
     rm = get_bits(ins, 3, 0);
@@ -75,7 +75,6 @@ int arm_shifter_op_data(arm_core p, uint32_t ins, uint32_t *index) {
             }
             break;
     }
-    return 0;
 }
 
 /* Decoding functions for different classes of instructions */
@@ -175,7 +174,7 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
             res = ~(index);
             break;
         default:
-            return -1;
+            return UNDEFINED_INSTRUCTION;
     }
     arm_write_register(p, rd, (uint32_t)res);
     if (get_bit(ins, 20) == 0x01){
@@ -184,7 +183,7 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 arm_write_cpsr(p, arm_read_spsr(p));
             } else {
                 // Unpredictable
-                return -1;
+                return DATA_ABORT;
             }
         } else {
             update_flags(p, res);

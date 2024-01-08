@@ -88,7 +88,7 @@ int switch_type(arm_core p, uint32_t ins){
             result = arm_coprocessor_others_swi(p, ins);
             break;
         default: 
-            result = -1; 
+            result = UNDEFINED_INSTRUCTION;
             break; 
     }
     return result;
@@ -150,7 +150,7 @@ int check_flags(arm_core p, uint32_t ins){
             result = 1;
             break;
         default:
-            result = -1;
+            result = UNDEFINED_INSTRUCTION;
             break;
     }
     return result;

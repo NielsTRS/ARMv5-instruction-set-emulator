@@ -23,8 +23,7 @@ Contact: Guillaume.Huard@imag.fr
 #include "registers.h"
 #include "arm_constants.h"
 #include <stdlib.h>
-
-//VOIR SI ON PEUT MIEUX UTILISER arm_constants.c
+#include "arm_constants.h"
 
 struct registers_data {
     uint32_t *reg; // r0-r12:utilisation libre, r13:sp, r14:lr, r15:pc
@@ -65,11 +64,9 @@ uint8_t registers_get_mode(registers r) {
     uint8_t mode = (uint8_t)currentMode;
 
     return mode;
-    /* return SVC; */
 }
 
 static int registers_mode_has_spsr(registers r, uint8_t mode) { //POURQUOI METTRE r ??
-    /*   compléter... */
     switch (mode) {
         case FIQ:
         case IRQ:
@@ -109,15 +106,12 @@ uint32_t registers_read(registers r, uint8_t reg, uint8_t mode) {
             return r->reg[reg];
         default:
             // Mode inconnu
-            return 0;
+            return UNDEFINED_INSTRUCTION;
     }
 }
 
 uint32_t registers_read_cpsr(registers r) {
-    /* uint32_t value = 0; */
-    /*   compléter... */
     return r->cpsr;
-    /* return value; */
 }
 
 uint32_t registers_read_spsr(registers r, uint8_t mode) {
@@ -132,7 +126,7 @@ uint32_t registers_read_spsr(registers r, uint8_t mode) {
             return r->spsr;
         default:
             // Mode inconnu
-            return 0;
+            return UNDEFINED_INSTRUCTION;
     }
 }
 
@@ -154,7 +148,6 @@ void registers_write(registers r, uint8_t reg, uint8_t mode, uint32_t value) {
 }
 
 void registers_write_cpsr(registers r, uint32_t value) {
-    /*   compléter... */
     r->cpsr = value;
 }
 

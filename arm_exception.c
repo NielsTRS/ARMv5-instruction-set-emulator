@@ -84,7 +84,7 @@ int arm_exception(arm_core p, uint8_t exception) {
             arm_write_register(p, 15, 26);
             break;
         default:
-            return -1;
+            return UNDEFINED_INSTRUCTION;
     }
     return exception;
 }
