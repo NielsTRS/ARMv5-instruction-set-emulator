@@ -32,7 +32,7 @@ void arm_shifter_op_data(arm_core p, uint32_t ins, uint32_t *index) {
 
     rm = get_bits(ins, 3, 0);
     mode = get_bit(ins, 4); //immediate or register
-    shift = get_bits(ins, 6, 5);
+    shift = get_bits(ins, 6, 5); //shift opcode
     
     if(mode){
         rs = get_bits(ins, 11, 8);
