@@ -140,27 +140,27 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
         case TST_MRS:
             if(shift && bit_id == 0x00){ // MRS
                 res = mrs_instruction(p, bit_r);
-            } else {
+            } else { //TST
                 res = rn & index;
+                update_flags(p, res);
+                return 0;
             }
-            update_flags(p, res);
-            return 0;
             break;
         case TEQ:
             res = rn ^ index;
             break;
         case CMP_MRS:
             if(shift && bit_id == 0x00){ // MRS
-                return mrs_instruction(p, bit_r);
-            } else {
+                res = mrs_instruction(p, bit_r);
+            } else { //CMP
                 res = rn - index;
+                update_flags(p, res);
+                return 0;
             }
-            update_flags(p, res);
-            return 0;
             break;
         case CMN_MISC:
-            if(shift && bit_id == 0x01){ // miscellaneous instruction
-                return arm_miscellaneous(p, ins);
+            if(shift && bit_id == 0x00){ // miscellaneous instruction
+                return arm_miscellaneous(p, ins); //CLZ
             } else {
                 res = rn + index;
             }
