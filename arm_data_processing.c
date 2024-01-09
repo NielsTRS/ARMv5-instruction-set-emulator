@@ -104,7 +104,7 @@ int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
 }
 
 int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t opcode, uint32_t rn, uint32_t index) {
-    long res;
+    uint32_t res;
     uint8_t bit_id, bit_r, rd = get_bits(ins, 15, 12);
 
     if(shift){
@@ -182,7 +182,7 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
         default:
             return UNDEFINED_INSTRUCTION;
     }
-    arm_write_register(p, rd, (uint32_t)res);
+    arm_write_register(p, rd, res);
     if (get_bit(ins, 20) == 0x01){
         if (rd == 0x0F){ // rd = 15
             if(arm_current_mode_has_spsr(p)){
@@ -198,11 +198,11 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
     return 0;
 }
 
-void update_flags(arm_core p, long res, uint32_t rn, uint32_t index){
+void update_flags(arm_core p, uint32_t res, uint32_t rn, uint32_t index){
 
     uint32_t cpsr = arm_read_cpsr(p);
 
-    if((uint32_t)res == 0x00000000){
+    if(res == 0x00000000){
         cpsr = set_bit(cpsr, Z);
     }
     if(get_bit(res, 31) == 0x01){
@@ -212,14 +212,12 @@ void update_flags(arm_core p, long res, uint32_t rn, uint32_t index){
     if((rn - index) == (rn + ~index +1)){
         cpsr = set_bit(cpsr, C);
     }
-    if((res < 0 && get_bit(res, 31) == 0x00) || (res > 0 && get_bit(res,31) == 0x01)){
-        cpsr = set_bit(cpsr, V);
-    }
+    cpsr = clr_bit(cpsr, V); // on est en non signé donc pas de V, on le force donc à 0
     arm_write_cpsr(p, cpsr);
 }
 
-long mrs_instruction(arm_core p, uint8_t bit_r){
-    long res;
+uint32_t mrs_instruction(arm_core p, uint8_t bit_r){
+    uint32_t res;
 
     if(bit_r == 0x01){
         res = arm_read_spsr(p);
