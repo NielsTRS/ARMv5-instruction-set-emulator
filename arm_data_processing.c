@@ -163,9 +163,9 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 return arm_miscellaneous(p, ins); //CLZ
             } else {
                 res = rn + index;
+                update_flags(p, res, rn, index);
+                return 0;
             }
-            update_flags(p, res, rn, index);
-            return 0;
             break;
         case ORR:
             res = rn | index;
@@ -209,7 +209,7 @@ void update_flags(arm_core p, uint32_t res, uint32_t rn, uint32_t index){
         cpsr = set_bit(cpsr, N);
     }
 
-    if((rn - index) == (rn + ~index +1)){
+    if(res < rn || res < index){ // ADD
         cpsr = set_bit(cpsr, C);
     }
     cpsr = clr_bit(cpsr, V); // on est en non signé donc pas de V, on le force donc à 0
