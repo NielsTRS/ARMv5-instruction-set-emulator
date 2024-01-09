@@ -142,7 +142,7 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 res = mrs_instruction(p, bit_r);
             } else { //TST
                 res = rn & index;
-                update_flags(p, res);
+                update_flags(p, res, rn, index);
                 return 0;
             }
             break;
@@ -154,7 +154,7 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 res = mrs_instruction(p, bit_r);
             } else { //CMP
                 res = rn - index;
-                update_flags(p, res);
+                update_flags(p, res, rn, index);
                 return 0;
             }
             break;
@@ -164,7 +164,7 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
             } else {
                 res = rn + index;
             }
-            update_flags(p, res);
+            update_flags(p, res, rn, index);
             return 0;
             break;
         case ORR:
@@ -192,13 +192,13 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 return DATA_ABORT;
             }
         } else {
-            update_flags(p, res);
+            update_flags(p, res, rn, index);
         }
     }
     return 0;
 }
 
-void update_flags(arm_core p, long res){
+void update_flags(arm_core p, long res, uint32_t rn, uint32_t index){
 
     uint32_t cpsr = arm_read_cpsr(p);
 
@@ -208,7 +208,8 @@ void update_flags(arm_core p, long res){
     if(get_bit(res, 31) == 0x01){
         cpsr = set_bit(cpsr, N);
     }
-    if(get_bit(res, 32) == 0x00000001){
+
+    if((rn - index) == (rn + ~index +1)){
         cpsr = set_bit(cpsr, C);
     }
     if((res < 0 && get_bit(res, 31) == 0x00) || (res > 0 && get_bit(res,31) == 0x01)){
