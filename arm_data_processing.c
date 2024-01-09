@@ -142,7 +142,7 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 res = mrs_instruction(p, bit_r);
             } else { //TST
                 res = rn & index;
-                update_flags(p, res, rn, index);
+                update_flags(p, res, rn, index, opcode);
                 return 0;
             }
             break;
@@ -154,7 +154,7 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 res = mrs_instruction(p, bit_r);
             } else { //CMP
                 res = rn - index;
-                update_flags(p, res, rn, index);
+                update_flags(p, res, rn, index, opcode);
                 return 0;
             }
             break;
@@ -163,7 +163,7 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 return arm_miscellaneous(p, ins); //CLZ
             } else {
                 res = rn + index;
-                update_flags(p, res, rn, index);
+                update_flags(p, res, rn, index, opcode);
                 return 0;
             }
             break;
@@ -192,13 +192,13 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 return DATA_ABORT;
             }
         } else {
-            update_flags(p, res, rn, index);
+            update_flags(p, res, rn, index, opcode);
         }
     }
     return 0;
 }
 
-void update_flags(arm_core p, uint32_t res, uint32_t rn, uint32_t index){
+void update_flags(arm_core p, uint32_t res, uint32_t rn, uint32_t index, uint8_t opcode){
 
     uint32_t cpsr = arm_read_cpsr(p);
 
@@ -209,9 +209,16 @@ void update_flags(arm_core p, uint32_t res, uint32_t rn, uint32_t index){
         cpsr = set_bit(cpsr, N);
     }
 
-    if(res < rn || res < index){ // ADD
-        cpsr = set_bit(cpsr, C);
+    if(opcode == ADD || opcode == ADC){
+        if(res < rn || res < index){ // ADD
+            cpsr = set_bit(cpsr, C);
+        }
+    } else if(opcode == SUB || opcode == SBC){
+        if(res > rn){ // SUB
+            cpsr = set_bit(cpsr, C);
+        }
     }
+
     cpsr = clr_bit(cpsr, V); // on est en non signé donc pas de V, on le force donc à 0
     arm_write_cpsr(p, cpsr);
 }
