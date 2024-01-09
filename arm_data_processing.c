@@ -123,7 +123,7 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
             res = rn - index;
             break;
         case RSB:
-            res = rn - index;
+            res = index - rn;
             break;
         case ADD:
             res = rn + index;
