@@ -204,18 +204,27 @@ void update_flags(arm_core p, uint32_t res, uint32_t rn, uint32_t index, uint8_t
 
     if(res == 0x00000000){
         cpsr = set_bit(cpsr, Z);
+    } else {
+        cpsr = clr_bit(cpsr, Z);
     }
     if(get_bit(res, 31) == 0x01){
         cpsr = set_bit(cpsr, N);
-    }
+    } else {
+        cpsr = clr_bit(cpsr, N);
+    } 
 
     if(opcode == ADD || opcode == ADC){
-        if(res < rn || res < index){ // ADD
+        if(res < rn || res < index){ // ADD ou ADC
             cpsr = set_bit(cpsr, C);
         }
+        else {
+            cpsr = clr_bit(cpsr, C);
+        }
     } else if(opcode == SUB || opcode == SBC){
-        if(res > rn){ // SUB
+        if(res > rn){ // SUB ou SUB
             cpsr = set_bit(cpsr, C);
+        } else {
+            cpsr = clr_bit(cpsr, C);
         }
     }
 
