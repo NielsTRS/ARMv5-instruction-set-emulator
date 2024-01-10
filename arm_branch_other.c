@@ -62,7 +62,7 @@ int arm_miscellaneous(arm_core p, uint32_t ins) {
     if(rm == 0x00){
         arm_write_register(p, rd, 32);
     } else {
-        for(int i = 0; i < 31; i++){
+        for(int i = 0; i < 32; i++){
             if(get_bit(arm_read_register(p, rm), i) == 1){
                 position = i;
             }
