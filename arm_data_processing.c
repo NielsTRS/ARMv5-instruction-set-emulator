@@ -113,31 +113,31 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
     }
 
     switch(opcode){
-        case AND:
+        case AND: // fait
             res = rn & index;
             break;
-        case EOR:
+        case EOR: // fait
             res = rn ^ index;
             break;
-        case SUB:
+        case SUB: // fait
             res = rn - index;
             break;
-        case RSB:
+        case RSB: // fait
             res = index - rn;
             break;
-        case ADD:
+        case ADD: // fait
             res = rn + index;
             break;
-        case ADC:
+        case ADC: // fait
             res = rn + index + get_bit(arm_read_cpsr(p), C);
             break;
-        case SBC:
+        case SBC: // fait
             res = rn - index - ~get_bit(arm_read_cpsr(p), C);
             break;
-        case RSC:
+        case RSC: // fait
             res = index - rn - ~get_bit(arm_read_cpsr(p), C);
             break;
-        case TST_MRS:
+        case TST_MRS: // fait
             if(shift && bit_id == 0x00){ // MRS
                 res = mrs_instruction(p, bit_r);
             } else { //TST
@@ -146,9 +146,10 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 return 0;
             }
             break;
-        case TEQ:
+        case TEQ: // modifié
             res = rn ^ index;
-            break;
+            update_flags(p, res, rn, index, opcode);
+            return 0;
         case CMP_MRS:
             if(shift && bit_id == 0x00){ // MRS
                 res = mrs_instruction(p, bit_r);
@@ -166,17 +167,16 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 update_flags(p, res, rn, index, opcode);
                 return 0;
             }
-            break;
-        case ORR:
+        case ORR: // fait
             res = rn | index;
             break;
-        case MOV:
+        case MOV: // fait
             res = index;
             break;
-        case BIC:
+        case BIC: // fait
             res = rn & ~(index);
             break;
-        case MVN:
+        case MVN: // fait
             res = ~(index);
             break;
         default:
@@ -213,19 +213,23 @@ void update_flags(arm_core p, uint32_t res, uint32_t rn, uint32_t index, uint8_t
         cpsr = clr_bit(cpsr, N);
     } 
 
-    if(opcode == ADD || opcode == ADC){
-        if(res < rn || res < index){ // ADD ou ADC
+    if(opcode == ADD || opcode == ADC || opcode == CMN_MISC){
+        if(res < rn || res < index){ // ADD ou ADC ou CMN
             cpsr = set_bit(cpsr, C);
         }
         else {
             cpsr = clr_bit(cpsr, C);
         }
-    } else if(opcode == SUB || opcode == SBC){
-        if(res > rn){ // SUB ou SUB
+    } else if(opcode == SUB || opcode == SBC || opcode == RSB || opcode == RSC || opcode == CMP_MRS){
+        if(res > rn){ // SUB ou SUB ou RSB ou RSC ou CMP
             cpsr = set_bit(cpsr, C);
         } else {
             cpsr = clr_bit(cpsr, C);
         }
+    } else if (opcode == ORR){ // cas particulier du ORR
+        cpsr = clr_bit(cpsr, C);
+    } else {
+        // les cas de shifter carry out
     }
 
     cpsr = clr_bit(cpsr, V); // on est en non signé donc pas de V, on le force donc à 0
