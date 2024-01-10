@@ -15,6 +15,8 @@ main:
       LDR r7, LD_D3
       LDRB r8, [r7]   @ vérification ldrb
 
+      swi 0x123456
+
 LD_D1:   .word D1
 LD_D2:   .word D2
 LD_D3:   .word D3
