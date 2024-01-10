@@ -8,5 +8,5 @@ main:
     adc r2, r0, r1
     @ Test mrs
     mrs r4, CPSR
-    mrs r4, SPSR
+    mrs r5, SPSR
     swi 0x123456
