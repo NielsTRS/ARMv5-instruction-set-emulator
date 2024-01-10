@@ -27,8 +27,9 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 #include "debug.h"
 
-void arm_shifter_op_data(arm_core p, uint32_t ins, uint32_t *index) {
+int arm_shifter_op_data(arm_core p, uint32_t ins, uint32_t *index) {
     uint8_t shift, rm, mode, rs, shift_imm;
+    int shifter_carry_out;
 
     rm = get_bits(ins, 3, 0);
     mode = get_bit(ins, 4); //immediate or register
@@ -45,65 +46,150 @@ void arm_shifter_op_data(arm_core p, uint32_t ins, uint32_t *index) {
         case LSL:
             if(mode){
                 *index = arm_read_register (p, rm) << arm_read_register(p, rs);
+
+                uint8_t rs7_0 = get_bits(arm_read_register(p, rs), 7, 0);
+                if(rs7_0 == 0){
+                    shifter_carry_out = 2;
+                }
+                else if(rs7_0 < 32){
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), 32-rs7_0);
+                }
+                else if(rs7_0 == 32){
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), 0);    
+                }
+                else if(rs7_0 > 32){
+                    shifter_carry_out = 0;
+                }
             }
             else{
                 *index = arm_read_register (p, rm) << shift_imm;
+
+                if(shift_imm == 0){ 
+                    shifter_carry_out = 2;
+                }
+                else{
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), 32-shift_imm);
+                }
             }
             break;
         case LSR:
             if(mode){
                 *index = arm_read_register (p, rm) >> arm_read_register(p, rs);
+
+                uint8_t rs7_0 = get_bits(arm_read_register(p, rs), 7, 0);
+                if(rs7_0 == 0){
+                    shifter_carry_out = 2;
+                }
+                else if(rs7_0 < 32){
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), rs7_0-1);
+                }
+                else if(rs7_0 == 32){
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), 31);    
+                }
+                else if(rs7_0 > 32){
+                    shifter_carry_out = 0;
+                }
             }
             else{
                 *index = arm_read_register (p, rm) >> shift_imm;
+
+                if(shift_imm == 0){
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), 0);
+                }
+                else{
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), shift_imm-1);
+                }
             }
             break;
         case ASR:
             if(mode){
                 *index = asr(arm_read_register (p, rm), (uint8_t)arm_read_register(p, rs));
+
+                uint8_t rs7_0 = get_bits(arm_read_register(p, rs), 7, 0);
+                if(rs7_0 == 0){
+                    shifter_carry_out = 2;
+                }
+                else if(rs7_0 < 32){
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), rs7_0-1);
+                }
+                else{
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), 31);
+                }
             }
             else{
                 *index = asr(arm_read_register (p, rm), shift_imm);
+                if(shift_imm == 0){
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), 31);
+                }
+                else{
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), shift_imm-1);
+                }
             }
             break;
         case ROR:
             if(mode){
                 *index = ror(arm_read_register (p, rm), (uint8_t)arm_read_register(p, rs));
+
+                uint8_t rs7_0 = get_bits(arm_read_register(p, rs), 7, 0);
+                uint8_t rs4_0 = get_bits(arm_read_register(p, rs), 4, 0);
+                if(rs7_0 == 0){
+                    shifter_carry_out = 2;
+                }
+                else if(rs4_0 == 0){
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), 31);
+                }
+                else{
+                    shifter_carry_out = get_bit(arm_read_register(p, rm), rs4_0-1);
+                }
             }
             else{
                 *index = ror(arm_read_register (p, rm), shift_imm);
+
+                shifter_carry_out = get_bit(arm_read_register(p, rm), shift_imm-1);
             }
             break;
     }
+    return shifter_carry_out;
 }
 
 /* Decoding functions for different classes of instructions */
 int arm_data_processing_shift(arm_core p, uint32_t ins) {
     uint8_t opcode;
     uint32_t index, rn;
+    int shifter_carry_out;
 
     opcode = get_bits(ins, 24, 21);
 
     rn = arm_read_register(p, get_bits(ins, 19, 16));
 
-    arm_shifter_op_data(p, ins, &index); //shifter operand calc
+    shifter_carry_out = arm_shifter_op_data(p, ins, &index); //shifter operand calc
 
-    return arm_data_processing_operation(1, p, ins, opcode, rn, index);
+    return arm_data_processing_operation(1, p, ins, opcode, rn, index, shifter_carry_out);
 }
 
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
-    uint8_t opcode, immed_8;
+    uint8_t opcode, immed_8, rotate_imm, immed, shifter_carry_out;
     uint32_t rn;
 
     opcode = get_bits(ins, 24, 21);
 
     rn = arm_read_register(p, get_bits(ins, 19, 16));
     immed_8 = get_bits(ins, 7, 0);
+    rotate_imm = get_bits(ins, 11, 8);
 
-    return arm_data_processing_operation(0, p, ins, opcode, rn, immed_8);
+    immed = ror(immed_8, rotate_imm*2);
+
+    if(rotate_imm == 0){
+        shifter_carry_out = 2;
+    }
+    else if(rotate_imm != 0){
+        shifter_carry_out = get_bit(immed, 31);
+    }
+
+    return arm_data_processing_operation(0, p, ins, opcode, rn, immed, shifter_carry_out);
 }
 
-int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t opcode, uint32_t rn, uint32_t index) {
+int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t opcode, uint32_t rn, uint32_t index, int shifter_carry_out) {
     uint32_t res;
     uint8_t bit_id, bit_r, rd = get_bits(ins, 15, 12);
 
@@ -142,20 +228,20 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 res = mrs_instruction(p, bit_r);
             } else { //TST
                 res = rn & index;
-                update_flags(p, res, rn, index, opcode);
+                update_flags(p, res, rn, index, opcode, shifter_carry_out);
                 return 0;
             }
             break;
         case TEQ: // modifié
             res = rn ^ index;
-            update_flags(p, res, rn, index, opcode);
+            update_flags(p, res, rn, index, opcode, shifter_carry_out);
             return 0;
         case CMP_MRS:
             if(shift && bit_id == 0x00){ // MRS
                 res = mrs_instruction(p, bit_r);
             } else { //CMP
                 res = rn - index;
-                update_flags(p, res, rn, index, opcode);
+                update_flags(p, res, rn, index, opcode, shifter_carry_out);
                 return 0;
             }
             break;
@@ -164,7 +250,7 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 return arm_miscellaneous(p, ins); //CLZ
             } else {
                 res = rn + index;
-                update_flags(p, res, rn, index, opcode);
+                update_flags(p, res, rn, index, opcode, shifter_carry_out);
                 return 0;
             }
         case ORR: // fait
@@ -192,13 +278,13 @@ int arm_data_processing_operation(int shift, arm_core p, uint32_t ins, uint8_t o
                 return DATA_ABORT;
             }
         } else {
-            update_flags(p, res, rn, index, opcode);
+            update_flags(p, res, rn, index, opcode, shifter_carry_out);
         }
     }
     return 0;
 }
 
-void update_flags(arm_core p, uint32_t res, uint32_t rn, uint32_t index, uint8_t opcode){
+void update_flags(arm_core p, uint32_t res, uint32_t rn, uint32_t index, uint8_t opcode, int shifter_carry_out){
 
     uint32_t cpsr = arm_read_cpsr(p);
 
@@ -229,12 +315,18 @@ void update_flags(arm_core p, uint32_t res, uint32_t rn, uint32_t index, uint8_t
     } else if (opcode == ORR){ // cas particulier du ORR
         cpsr = clr_bit(cpsr, C);
     } else {
-        // les cas de shifter carry out
+        if(shifter_carry_out == 0){
+            cpsr = clr_bit(cpsr, C);
+        }
+        else if(shifter_carry_out == 1){
+            cpsr = set_bit(cpsr, C);
+        }
     }
 
     cpsr = clr_bit(cpsr, V); // on est en non signé donc pas de V, on le force donc à 0
     arm_write_cpsr(p, cpsr);
 }
+
 
 uint32_t mrs_instruction(arm_core p, uint8_t bit_r){
     uint32_t res;
