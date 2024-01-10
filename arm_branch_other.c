@@ -62,8 +62,8 @@ int arm_miscellaneous(arm_core p, uint32_t ins) {
     if(rm == 0x00){
         arm_write_register(p, rd, 32);
     } else {
-        for(int i = 0; i < 4; i++){ // il suffit de parcourir que les 4 bits les plus a droites car les 4 autres sont à 0
-            if(get_bit(rm, i) == 1){
+        for(int i = 0; i < 31; i++){
+            if(get_bit(arm_read_register(p, rm), i) == 1){
                 position = i;
             }
         }
