@@ -39,15 +39,15 @@ int arm_get_index(arm_core p, uint32_t ins, uint32_t *index) {
             *index = arm_read_register (p, rm) << shift_imm;
             break;
         case LSR:
-            if (shift_imm == 0) { // LSR #32
+            if (shift_imm == 0x00) { // LSR #32
                 *index = 0;
             } else {
                 *index = arm_read_register (p, rm) >> shift_imm;
             }
             break;
         case ASR:
-            if (shift_imm == 0) { // ASR #32
-                if (((rm >> 31) & 1) == 1) {
+            if (shift_imm == 0x00) { // ASR #32
+                if (((rm >> 31) & 1) == 0x01) {
                     *index = 0xFFFFFFFF;
                 } else {
                     *index = 0;
@@ -76,23 +76,23 @@ int arm_get_address_word_byte (arm_core p, uint32_t ins, uint32_t *address) {
     rm = get_bits (ins, 3, 0);
     offset = get_bits (ins, 11, 0);
 
-    if (i == 0) { // Immediate offset/index
-        if (pp == 0) { // Immediate post-indexed
+    if (i == 0x00) { // Immediate offset/index
+        if (pp == 0x00) { // Immediate post-indexed
             *address = arm_read_register (p, rn);
-            if (u == 1) {
+            if (u == 0x01) {
                 arm_write_register (p, rn, arm_read_register (p, rn) + offset);
             } else {
                 arm_write_register (p, rn, arm_read_register (p, rn) - offset);
             }
         } else { // Immediate offset or Immediate pre-indexed
-            if (w == 0) { // Immediate offset
-                if (u == 1) {
+            if (w == 0x00) { // Immediate offset
+                if (u == 0x01) {
                     *address = arm_read_register (p, rn) + offset;
                 } else {
                     *address = arm_read_register (p, rn) - offset;
                 }
             } else { // Immediate pre-indexed
-                if (u == 1) {
+                if (u == 0x01) {
                     *address = arm_read_register (p, rn) + offset;
                 } else {
                     *address = arm_read_register (p, rn) - offset;
@@ -101,7 +101,7 @@ int arm_get_address_word_byte (arm_core p, uint32_t ins, uint32_t *address) {
             }
         }
     } else { // Register offset/index OU Scaled register offset/index
-        if (get_bits (ins, 11, 5) == 0) { // Register offset/index
+        if (get_bits (ins, 11, 5) == 0x00) { // Register offset/index
             if (pp == 0) { // Register post-indexed
                 *address = arm_read_register (p, rn);
                 if (u == 1) {
@@ -110,14 +110,14 @@ int arm_get_address_word_byte (arm_core p, uint32_t ins, uint32_t *address) {
                     arm_write_register (p, rn, arm_read_register (p, rn) - arm_read_register (p, rm));
                 }
             } else { // Register offset OU Register pre-indexed
-                if (w == 0) { // Register offset
-                    if (u == 1) {
+                if (w == 0x00) { // Register offset
+                    if (u == 0x01) {
                         *address = arm_read_register (p, rn) + arm_read_register (p, rm);
                     } else {
                         *address = arm_read_register (p, rn) - arm_read_register (p, rm);
                     }
                 } else { // Register pre-indexed
-                    if (u == 1) {
+                    if (u == 0x01) {
                         *address = arm_read_register (p, rn) + arm_read_register (p, rm);
                     } else {
                         *address = arm_read_register (p, rn) - arm_read_register (p, rm);
@@ -126,24 +126,24 @@ int arm_get_address_word_byte (arm_core p, uint32_t ins, uint32_t *address) {
                 }
             }
         } else { // Scaled register offset/index
-            if (pp == 0) { // Scaled register post-indexed
+            if (pp == 0x00) { // Scaled register post-indexed
                 arm_get_index (p, ins, &index);
-                if (u == 1) {
+                if (u == 0x01) {
                     arm_write_register (p, rn, arm_read_register (p, rn) + index);
                 } else {
                     arm_write_register (p, rn, arm_read_register (p, rn) - index);
                 }
             } else { // Scaled register offset OU Scaled register pre-indexed
-                if (w == 0) { // Scaled register offset
+                if (w == 0x00) { // Scaled register offset
                     arm_get_index (p, ins, &index);
-                    if (u == 1) {
+                    if (u == 0x01) {
                         *address = arm_read_register (p, rn) + index;
                     } else {
                         *address = arm_read_register (p, rn) - index;
                     }
                 } else { // Scaled register pre-indexed
                     arm_get_index (p, ins, &index);
-                    if (u == 1) {
+                    if (u == 0x01) {
                         *address = arm_read_register (p, rn) + index;
                     } else {
                         *address = arm_read_register (p, rn) - index;
@@ -167,26 +167,26 @@ int arm_get_address_half (arm_core p, uint32_t ins, uint32_t *address) {
     rn = get_bits (ins, 19, 16);
     rm = get_bits (ins, 3, 0);
 
-    if (get_bit(ins, 22) == 1) { //Immediate offset/index
-        if (pp == 0) {  // Immediate post-indexed
+    if (get_bit(ins, 22) == 0x01) { //Immediate offset/index
+        if (pp == 0x00) {  // Immediate post-indexed
             *address = arm_read_register (p, rn);
             offset_8 = (immedH << 4) | immedL;
-            if (u == 1) {
+            if (u == 0x01) {
                 arm_write_register (p, rn, arm_read_register (p, rn) + offset_8);
             } else {
                 arm_write_register (p, rn, arm_read_register (p, rn) - offset_8);
             }
         } else { // Immediate offset OU Immediate pre-indexed
-            if (w == 0) { // Immediate offset
+            if (w == 0x00) { // Immediate offset
                 offset_8 = (immedH << 4) | immedL;
-                if (u == 1) {
+                if (u == 0x01) {
                     *address = arm_read_register (p, rn) + offset_8;
                 } else {
                     *address = arm_read_register (p, rn) - offset_8;
                 }
             } else { // Immediate pre-indexed
                 offset_8 = (immedH << 4) | immedL;
-                if (u == 1) {
+                if (u == 0x01) {
                     *address = arm_read_register (p, rn) + offset_8;
                 } else {
                     *address = arm_read_register (p, rn) - offset_8;
@@ -196,22 +196,22 @@ int arm_get_address_half (arm_core p, uint32_t ins, uint32_t *address) {
         }
 
     } else { //Register offset/index
-        if (pp == 0) {  // Register post-indexed
+        if (pp == 0x00) {  // Register post-indexed
             *address = arm_read_register (p, rn);
-            if (u == 1) {
+            if (u == 0x01) {
                 arm_write_register (p, rn, arm_read_register (p, rn) + arm_read_register (p, rm));
             } else {
                 arm_write_register (p, rn, arm_read_register (p, rn) - arm_read_register (p, rm));
             }
         } else { // Register offset OU Register pre-indexed
-            if (w == 0) { // Register offset
-                if (u == 1) {
+            if (w == 0x00) { // Register offset
+                if (u == 0x01) {
                     *address = arm_read_register (p, rn) + arm_read_register (p, rm);
                 } else {
                     *address = arm_read_register (p, rn) - arm_read_register (p, rm);
                 }
             } else { // Register pre-indexed
-                if (u == 1) {
+                if (u == 0x01) {
                     *address = arm_read_register (p, rn) + arm_read_register (p, rm);
                 } else {
                     *address = arm_read_register (p, rn) - arm_read_register (p, rm);
@@ -257,7 +257,7 @@ int arm_strb(arm_core p, uint32_t ins, uint32_t address) {
 int arm_ldrh(arm_core p, uint32_t ins, uint32_t address) {
     uint16_t data;
 
-    if ((address & 1) == 0) {
+    if ((address & 1) == 0x00) {
         arm_read_half (p, address, &data);
     } else {
         return DATA_ABORT;
@@ -267,7 +267,7 @@ int arm_ldrh(arm_core p, uint32_t ins, uint32_t address) {
 }
 
 int arm_strh(arm_core p, uint32_t ins, uint32_t address) {
-    if ((address & 1) == 0) {
+    if ((address & 1) == 0x00) {
         arm_write_half (p, address, arm_read_register(p, get_bits(ins, 15, 12)));
     } else {
         return DATA_ABORT;
@@ -342,28 +342,28 @@ int arm_get_start_end_address(arm_core p, uint32_t ins, uint32_t *start_address,
         case 0x00: // Decrement after
             *start_address = arm_read_register(p, rn) - (count_nb_set(register_list) * 4) + 4;
             *end_address = arm_read_register(p, rn);
-            if (w == 1) {
+            if (w == 0x01) {
                 arm_write_register (p, rn, arm_read_register(p, rn) - (count_nb_set(register_list) * 4) );
             }
             break;
         case 0x01: // Increment after
             *start_address = arm_read_register(p, rn);
             *end_address = arm_read_register(p, rn) + (count_nb_set(register_list) * 4) - 4;
-            if (w == 1) {
+            if (w == 0x01) {
                 arm_write_register (p, rn, arm_read_register(p, rn) + (count_nb_set(register_list) * 4) );
             }
             break;
         case 0x02: // Decrement before
             *start_address = arm_read_register(p, rn) - (count_nb_set(register_list) * 4);
             *end_address = arm_read_register(p, rn) - 4;
-            if (w == 1) {
+            if (w == 0x01) {
                 arm_write_register (p, rn, arm_read_register(p, rn) - (count_nb_set(register_list) * 4) );
             }
             break;
         case 0x03: // Increment before
             *start_address = arm_read_register(p, rn) + 4;
             *end_address = arm_read_register(p, rn) + (count_nb_set(register_list) * 4);
-            if (w == 1) {
+            if (w == 0x01) {
                 arm_write_register (p, rn, arm_read_register(p, rn) + (count_nb_set(register_list) * 4) );
             }
             break;
@@ -379,13 +379,13 @@ int arm_ldm(arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_addre
     address = start_address;
 
     for (int i = 0; i <= 14; i++) {
-        if ( ((register_list >> i) & 1) == 1 ) {
+        if ( ((register_list >> i) & 1) == 0x01 ) {
             arm_read_word(p, address, &ri);
             arm_write_register (p, i, ri);
             address = address + 4;
         }
     }
-    if ( ((register_list >> 15) & 1) == 1 ) {
+    if ( ((register_list >> 15) & 1) == 0x01 ) {
         arm_read_word(p, address, &value);
         arm_write_register (p, 15, value & 0xFFFFFFFE);
         arm_write_cpsr (p, (arm_read_cpsr(p) & ~(1 << 5)) | ((value & 1) << 5));
@@ -403,7 +403,7 @@ int arm_stm(arm_core p, uint32_t ins, uint32_t start_address, uint32_t end_addre
     address = start_address;
 
     for (int i = 0; i <= 15; i++) {
-        if ( ((register_list >> i) & 1) == 1 ) {
+        if ( ((register_list >> i) & 1) == 0x01 ) {
             arm_write_word(p, address, arm_read_register(p, i));
             address = address + 4;
         }
