@@ -16,7 +16,7 @@ AM_LDFLAGS+=-Wl,-EB
 
 if HAVE_ARM_COMPILER
 noinst_PROGRAMS=example1 example2 example3 example4 example5 example6 example7 example8 example9 example10 \
- 						 example11 example12 example13 example14 example15 example16 example17 insertion_sort
+ 						 example11 example12 example13 example14 example15 example16 example17 example18 example19 example20 example21 insertion_sort
 
 all-am: $(PROGS)
 endif
@@ -38,6 +38,10 @@ example14_SOURCES=example14.s
 example15_SOURCES=example15.s
 example16_SOURCES=example16.s
 example17_SOURCES=example17.s
+example18_SOURCES=example18.s
+example19_SOURCES=example19.s
+example20_SOURCES=example20.s
+example21_SOURCES=example21.s
 insertion_sort_SOURCES=insertion_sort.c my_syscalls.s my_syscalls.h
 
 EXTRA_DIST=linker_script
