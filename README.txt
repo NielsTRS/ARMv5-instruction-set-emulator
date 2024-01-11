@@ -1,5 +1,6 @@
-GUIDE de compilation/execution du simulateur 
 
+
+GUIDE de compilation/execution du simulateur 
 fichier run.sh options -r -m -d 
 ./run.sh -m : config + make all
 ./run.sh -r : lancement du simulateur + gdb set en big endian et connecter au simulateur
