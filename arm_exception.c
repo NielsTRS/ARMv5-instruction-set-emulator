@@ -86,6 +86,6 @@ int arm_exception(arm_core p, uint8_t exception) {
         default:
             return arm_exception(p, UNDEFINED_INSTRUCTION);
     }
-    //printf("Exception : %x \n", exception);
+    printf("Exception : %x \n", exception);
     return exception;
 }
