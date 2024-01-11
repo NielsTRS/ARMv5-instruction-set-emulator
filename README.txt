@@ -11,6 +11,10 @@ l'option de mise a joue des flags suivant le bit S
 les instructions de load/store LDR LDRB LDRH STR STRB STRH  
 les shift LSL LSR ASR ROR (version immediate et entre registres)
 
+Bogues connus:
+instruction CLZ: ne compile pas CLZ ? instr pas reconnu en armv5
+mise a joue du flag C suivant shifter_carry_out (possiblement reglé pas eu le temps de test)
+
 TESTS effectué:
 Tout les principaux tests effectués sont dans le dossier Exemples, ils sont tous commentés, 
 chaque fichier test un groupe d'instructions specifique. (test commentés, juste a verifier manuellement la bonne execution)
