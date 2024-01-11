@@ -13,5 +13,5 @@ les shift LSL LSR ASR ROR (version immediate et entre registres)
 
 TESTS effectué:
 Tout les principaux tests effectués sont dans le dossier Exemples, ils sont tous commentés, 
-chaque fichier test une instruction specifique. (test commentés, juste a verifier manuellement la bonne execution)
+chaque fichier test un groupe d'instructions specifique. (test commentés, juste a verifier manuellement la bonne execution)
 
