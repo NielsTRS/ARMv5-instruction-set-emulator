@@ -163,8 +163,9 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 
     rn = arm_read_register(p, get_bits(ins, 19, 16));
 
-    shifter_carry_out = arm_shifter_op_data(p, ins, &index, &shifter_carry_out); //shifter operand calc
-
+    if(arm_shifter_op_data(p, ins, &index, &shifter_carry_out) == -1){ //shifter operand calc
+        return -1;
+    }
     return arm_data_processing_operation(1, p, ins, opcode, rn, index, shifter_carry_out);
 }
 
