@@ -1,6 +1,17 @@
+GUIDE de compilation/execution du simulateur 
+
+fichier run.sh options -r -m -d 
+./run.sh -m : config + make all
+./run.sh -r : lancement du simulateur + gdb set en big endian et connecter au simulateur
+./run.sh -d : a utiliser avec -r, option debug active toutes les traces + redirection des erreurs de gdb + sim dans un fichier
+
 Fonctionalités implementées:
 les instructions de data processing AND EOR SUB RSB ADD ADC SBC RSC TST TEQ CMP CMN ORR MOV BIC MVN MRS
 l'option de mise a joue des flags suivant le bit S
 les instructions de load/store LDR LDRB LDRH STR STRB STRH  
 les shift LSL LSR ASR ROR (version immediate et entre registres)
+
+TESTS effectué:
+Tout les principaux tests effectués sont dans le dossier Exemples, ils sont tous commentés, 
+chaque fichier test une instruction specifique. (test commentés, juste a verifier manuellement la bonne execution)
 

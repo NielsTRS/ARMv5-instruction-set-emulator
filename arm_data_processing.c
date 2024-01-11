@@ -314,7 +314,7 @@ void update_flags(arm_core p, uint32_t res, uint32_t rn, uint32_t index, uint8_t
         }
     } else if (opcode == ORR){ // cas particulier du ORR
         cpsr = clr_bit(cpsr, C);
-    } else {
+    } else { //cas AND EOR TST TEQ MOV BIC MVN
         if(shifter_carry_out == 0){
             cpsr = clr_bit(cpsr, C);
         }
